@@ -103,19 +103,51 @@ PostgreSQL
 
 - Node.js 20.9.0 以上
 - Corepack（pnpm 10.34.5 を `packageManager` で固定）
+- Docker Desktop など、Docker Compose を実行できる環境
 
 ### セットアップ
 
 ```bash
 corepack enable
 pnpm install
-cp .env.example .env.local
+cp .env.example .env
+docker compose up -d
 pnpm dev
 ```
 
 起動後、[http://localhost:3000](http://localhost:3000) をブラウザで開いてください。
 
-現時点の `.env.example` は、後続 Issue で追加する環境変数の置き場所です。`.env.local` を含む `.env*` は Git 管理外です（`.env.example` のみ管理対象）。
+`.env` は Git 管理外です（`.env.example` のみ管理対象）。ローカル用の値だけを設定し、秘密情報や本番の認証情報は記載しないでください。
+
+### PostgreSQL
+
+PostgreSQL は `docker compose up -d` でバックグラウンド起動します。コンテナの状態は次のコマンドで確認できます。`postgres` サービスが `healthy` になれば起動完了です。
+
+```bash
+docker compose ps
+```
+
+次のコマンドで PostgreSQL へ接続し、接続先のデータベース名を確認できます。
+
+```bash
+docker compose exec postgres psql -U liver_store -d liver_store -c "SELECT current_database();"
+```
+
+`.env` の `POSTGRES_USER` または `POSTGRES_DB` を変更した場合は、接続確認コマンドの値も合わせて変更してください。`POSTGRES_PORT` を変更する場合は `DATABASE_URL` のポートも同じ値にします。
+
+コンテナを停止・削除するには次のコマンドを実行します。データは `postgres_data` named volume に保持されるため、その後にコンテナを再作成しても引き継がれます。
+
+```bash
+docker compose down
+docker compose up -d
+```
+
+ローカル DB をデータごと完全に削除してリセットする場合は、named volume も削除します。この操作で削除したデータは復元できません。
+
+```bash
+docker compose down --volumes
+docker compose up -d
+```
 
 ### コマンド
 
