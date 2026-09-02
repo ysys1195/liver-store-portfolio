@@ -101,7 +101,7 @@ PostgreSQL
 
 ### 必要な環境
 
-- Node.js 20.9.0 以上
+- Node.js 20.19.0 / 22.12.0 以上、または 24.0.0 以上
 - Corepack（pnpm 10.34.5 を `packageManager` で固定）
 - Docker Desktop など、Docker Compose を実行できる環境
 
@@ -112,12 +112,42 @@ corepack enable
 pnpm install
 cp .env.example .env
 docker compose up -d
+pnpm prisma migrate dev
+pnpm prisma db seed
 pnpm dev
 ```
 
 起動後、[http://localhost:3000](http://localhost:3000) をブラウザで開いてください。
 
 `.env` は Git 管理外です（`.env.example` のみ管理対象）。ローカル用の値だけを設定し、秘密情報や本番の認証情報は記載しないでください。
+
+### Prisma / Database setup
+
+`prisma/schema.prisma` をDBスキーマのsource of truthとし、`prisma/migrations` をGit管理します。初回セットアップではPostgreSQLが`healthy`になった後、migrationとseedを順に実行してください。
+
+```bash
+pnpm prisma migrate dev
+pnpm prisma db seed
+```
+
+seedは再実行可能です。夜風ユイを含む架空ライバー、デモ商品、`ProductLiver`による関連をupsertし、最後に各商品へ紐付くライバー名を表示します。Prisma Clientだけを再生成する場合は次を実行します。
+
+```bash
+pnpm prisma generate
+```
+
+商品とライバーの多対多関連は、seedの出力に加えて次のSQLでも確認できます。
+
+```bash
+docker compose exec postgres psql -U liver_store -d liver_store -c \
+  "SELECT p.name AS product, string_agg(l.name, ', ' ORDER BY l.name) AS livers FROM product_livers pl JOIN products p ON p.id = pl.product_id JOIN livers l ON l.id = pl.liver_id GROUP BY p.id, p.name ORDER BY p.id;"
+```
+
+schema変更時は`prisma/schema.prisma`を更新してから、名前付きmigrationを作成します。生成されたSQLを確認し、migrationファイルも変更と一緒にコミットしてください。
+
+```bash
+pnpm prisma migrate dev --name describe_change
+```
 
 ### PostgreSQL
 
@@ -151,15 +181,18 @@ docker compose up -d
 
 ### コマンド
 
-| Command             | Description                  |
-| ------------------- | ---------------------------- |
-| `pnpm dev`          | 開発サーバーを起動           |
-| `pnpm build`        | 本番用ビルドを作成           |
-| `pnpm start`        | ビルド済みアプリを起動       |
-| `pnpm lint`         | ESLintを実行                 |
-| `pnpm typecheck`    | TypeScriptの型チェックを実行 |
-| `pnpm format`       | Prettierでコードを整形       |
-| `pnpm format:check` | Prettierの整形差分を確認     |
+| Command                   | Description                  |
+| ------------------------- | ---------------------------- |
+| `pnpm dev`                | 開発サーバーを起動           |
+| `pnpm build`              | 本番用ビルドを作成           |
+| `pnpm start`              | ビルド済みアプリを起動       |
+| `pnpm lint`               | ESLintを実行                 |
+| `pnpm typecheck`          | TypeScriptの型チェックを実行 |
+| `pnpm format`             | Prettierでコードを整形       |
+| `pnpm format:check`       | Prettierの整形差分を確認     |
+| `pnpm prisma generate`    | Prisma Clientを生成          |
+| `pnpm prisma migrate dev` | 開発DBへmigrationを適用      |
+| `pnpm prisma db seed`     | デモデータを投入             |
 
 ### 基本ディレクトリ
 

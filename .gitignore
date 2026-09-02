@@ -13,6 +13,9 @@
 # production
 /build
 
+# generated Prisma Client
+/src/generated/prisma
+
 # local environment files
 .env*
 !.env.example

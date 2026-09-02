@@ -135,7 +135,7 @@ Use for server-owned state that needs:
 Example query key:
 
 ```ts
-['product', productId, 'inventory']
+["product", productId, "inventory"];
 ```
 
 ### Zustand
