@@ -99,16 +99,45 @@ PostgreSQL
 
 ## Local Development
 
-ローカル環境の詳細は実装Issueで整備します。想定する基本フローは以下です。
+### 必要な環境
+
+- Node.js 20.9.0 以上
+- Corepack（pnpm 10.34.5 を `packageManager` で固定）
+
+### セットアップ
 
 ```bash
+corepack enable
 pnpm install
-docker compose up -d
-pnpm prisma migrate dev
+cp .env.example .env.local
 pnpm dev
 ```
 
-本番では `prisma migrate deploy` を使用します。
+起動後、[http://localhost:3000](http://localhost:3000) をブラウザで開いてください。
+
+現時点の `.env.example` は、後続 Issue で追加する環境変数の置き場所です。`.env.local` を含む `.env*` は Git 管理外です（`.env.example` のみ管理対象）。
+
+### コマンド
+
+| Command             | Description                  |
+| ------------------- | ---------------------------- |
+| `pnpm dev`          | 開発サーバーを起動           |
+| `pnpm build`        | 本番用ビルドを作成           |
+| `pnpm start`        | ビルド済みアプリを起動       |
+| `pnpm lint`         | ESLintを実行                 |
+| `pnpm typecheck`    | TypeScriptの型チェックを実行 |
+| `pnpm format`       | Prettierでコードを整形       |
+| `pnpm format:check` | Prettierの整形差分を確認     |
+
+### 基本ディレクトリ
+
+```text
+src/
+├── app/          # App Routerのページ・レイアウト
+├── components/   # 共通UIコンポーネント
+├── lib/          # 共通ロジック・サーバー処理
+└── types/        # 共通の型定義
+```
 
 ## Disclaimer / Assets
 
