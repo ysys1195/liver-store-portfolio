@@ -1,0 +1,104 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProductCategory {
+  VOICE
+  GOODS
+  SET
+}
+
+enum OrderStatus {
+  COMPLETED
+}
+
+model Liver {
+  id            String         @id @default(cuid())
+  slug          String         @unique
+  name          String
+  description   String?
+  imageUrl      String?        @map("image_url")
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  productLivers ProductLiver[]
+
+  @@map("livers")
+}
+
+model Product {
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  name          String
+  description   String?
+  /// Enforced by the products_price_nonnegative database check constraint.
+  price         Int
+  /// Enforced by the products_stock_nonnegative database check constraint.
+  stock         Int
+  category      ProductCategory
+  imageUrl      String?         @map("image_url")
+  salesStartAt  DateTime        @map("sales_start_at") @db.Timestamptz(3)
+  salesEndAt    DateTime?       @map("sales_end_at") @db.Timestamptz(3)
+  createdAt     DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+  productLivers ProductLiver[]
+  orderItems    OrderItem[]
+
+  @@index([salesStartAt])
+  @@index([salesEndAt])
+  @@map("products")
+}
+
+model ProductLiver {
+  productId String  @map("product_id")
+  liverId   String  @map("liver_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  liver     Liver   @relation(fields: [liverId], references: [id], onDelete: Cascade)
+
+  @@id([productId, liverId])
+  @@index([productId])
+  @@index([liverId])
+  @@map("product_livers")
+}
+
+model Order {
+  id             String          @id @default(cuid())
+  status         OrderStatus
+  totalAmount    Int             @map("total_amount")
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+  items          OrderItem[]
+  idempotencyKey IdempotencyKey?
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String  @map("order_id")
+  productId   String  @map("product_id")
+  productName String  @map("product_name")
+  unitPrice   Int     @map("unit_price")
+  quantity    Int
+  subtotal    Int
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  product     Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+model IdempotencyKey {
+  key       String   @id
+  orderId   String   @unique @map("order_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@map("idempotency_keys")
+}
