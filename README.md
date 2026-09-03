@@ -33,7 +33,7 @@ VTuber / Virtual Liver 向けECストアを題材にした、採用選考用の�
 | Local DB | Docker Compose + PostgreSQL |
 | Production DB | Neon Postgres |
 | Hosting | Vercel |
-| Authentication | Basic Authentication via Next.js Middleware |
+| Authentication | Basic Authentication via Next.js Proxy |
 | Unit / Component Test | Vitest / React Testing Library |
 | E2E | Playwright |
 
@@ -111,15 +111,30 @@ PostgreSQL
 corepack enable
 pnpm install
 cp .env.example .env
+# .env の BASIC_AUTH_USER / BASIC_AUTH_PASSWORD を任意の値へ変更
 docker compose up -d
 pnpm prisma migrate dev
 pnpm prisma db seed
 pnpm dev
 ```
 
-起動後、[http://localhost:3000](http://localhost:3000) をブラウザで開いてください。
+起動後、[http://localhost:3000](http://localhost:3000) をブラウザで開き、
+`.env` に設定したBasic認証情報を入力してください。認証情報が未設定、または一致しない場合は
+`401 Unauthorized` となり、アプリは表示されません。
 
 `.env` は Git 管理外です（`.env.example` のみ管理対象）。ローカル用の値だけを設定し、秘密情報や本番の認証情報は記載しないでください。
+Basic認証情報は `NEXT_PUBLIC_` を付けず、必ずサーバー専用環境変数として設定します。
+
+### アクセス制限・非公式表記の確認
+
+- 未認証または誤った認証情報では `401 Unauthorized` が返る
+- 正しい認証情報ではTOPが表示され、初回のみ必須Disclaimerが表示される
+- 「内容を確認しました」を選ぶと、同じブラウザセッション内では再表示されない
+- 全ページ共通Footerに非公式・非商用デモである旨が表示される
+- ページのrobots metadataが `noindex, nofollow` で、`/robots.txt` が全クロールを拒否する
+
+環境変数を変更した場合は開発サーバーを再起動してください。確認時にBasic認証情報を
+コマンド履歴へ残したくない場合は、ブラウザの認証ダイアログを使用してください。
 
 ### Prisma / Database setup
 
@@ -186,6 +201,7 @@ docker compose up -d
 | `pnpm dev`                | 開発サーバーを起動           |
 | `pnpm build`              | 本番用ビルドを作成           |
 | `pnpm start`              | ビルド済みアプリを起動       |
+| `pnpm test`               | Vitestを実行                 |
 | `pnpm lint`               | ESLintを実行                 |
 | `pnpm typecheck`          | TypeScriptの型チェックを実行 |
 | `pnpm format`             | Prettierでコードを整形       |
