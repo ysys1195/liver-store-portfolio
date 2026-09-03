@@ -66,6 +66,42 @@ const products = [
     salesStartAt: new Date("2026-09-15T09:00:00.000Z"),
     salesEndAt: new Date("2026-10-15T14:59:59.999Z"),
   },
+  {
+    id: "yui-moonlight-acrylic-stand",
+    slug: "yui-moonlight-acrylic-stand",
+    name: "夜風ユイ Moonlight Acrylic Stand",
+    description:
+      "残りわずかの販売状態を確認するためのデモグッズです。実際には購入できません。",
+    price: 1800,
+    stock: 3,
+    category: ProductCategory.GOODS,
+    salesStartAt: new Date("2026-09-01T09:00:00.000Z"),
+    salesEndAt: null,
+  },
+  {
+    id: "yui-starlight-keychain",
+    slug: "yui-starlight-keychain",
+    name: "夜風ユイ Starlight Keychain",
+    description:
+      "SOLD OUT表示を確認するためのデモグッズです。実際には購入できません。",
+    price: 1200,
+    stock: 0,
+    category: ProductCategory.GOODS,
+    salesStartAt: new Date("2026-08-01T09:00:00.000Z"),
+    salesEndAt: null,
+  },
+  {
+    id: "yui-summer-night-voice",
+    slug: "yui-summer-night-voice",
+    name: "夜風ユイ Summer Night Voice",
+    description:
+      "販売終了表示を確認するためのデモボイス商品です。実際には購入できません。",
+    price: 800,
+    stock: 12,
+    category: ProductCategory.VOICE,
+    salesStartAt: new Date("2026-07-01T09:00:00.000Z"),
+    salesEndAt: new Date("2026-08-31T14:59:59.999Z"),
+  },
 ] as const;
 
 async function main() {
@@ -90,6 +126,12 @@ async function main() {
     { productId: "yui-birthday-2026", liverId: "liver-yokaze-yui" },
     { productId: "yui-namiro-midnight-set", liverId: "liver-yokaze-yui" },
     { productId: "yui-namiro-midnight-set", liverId: "liver-namiro" },
+    {
+      productId: "yui-moonlight-acrylic-stand",
+      liverId: "liver-yokaze-yui",
+    },
+    { productId: "yui-starlight-keychain", liverId: "liver-yokaze-yui" },
+    { productId: "yui-summer-night-voice", liverId: "liver-yokaze-yui" },
   ];
 
   for (const productLiver of productLivers) {
