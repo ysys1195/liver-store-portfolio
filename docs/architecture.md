@@ -142,9 +142,12 @@ MigrationファイルはGit管理する。
 
 ## 6. Authentication / Access Control
 
-Next.js MiddlewareでBasic認証を行う。
+Next.js 16のリクエスト境界であるProxy（従来のMiddleware）でBasic認証を行う。
 
-認証情報は環境変数で管理し、リポジトリには含めない。
+認証情報はサーバー専用の環境変数 `BASIC_AUTH_USER` / `BASIC_AUTH_PASSWORD`
+で管理し、リポジトリやクライアントbundleには含めない。認証情報が未設定の場合も
+fail closedとしてアクセスを拒否する。静的アセットと、クローラーへ拒否方針を伝える
+`robots.txt` のみ認証対象外とする。
 
 さらに以下を併用する。
 
