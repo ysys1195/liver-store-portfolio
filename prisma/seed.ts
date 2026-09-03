@@ -22,9 +22,9 @@ const livers = [
     description: "夜更けの時間をテーマに活動する、デモ用の架空ライバーです。",
   },
   {
-    id: "liver-asanagi-ren",
-    slug: "asanagi-ren",
-    name: "朝凪レン",
+    id: "liver-namiro",
+    slug: "namiro",
+    name: "ナミロ",
     description: "コラボ商品の関連確認用に作成する、デモ用の架空ライバーです。",
   },
 ] as const;
@@ -55,9 +55,9 @@ const products = [
     salesEndAt: new Date("2026-10-10T14:59:59.999Z"),
   },
   {
-    id: "yui-ren-midnight-set",
-    slug: "yui-ren-midnight-set",
-    name: "夜風ユイ＆朝凪レン Midnight Set",
+    id: "yui-namiro-midnight-set",
+    slug: "yui-namiro-midnight-set",
+    name: "夜風ユイ＆ナミロ Midnight Set",
     description:
       "商品とライバーの多対多関連を確認するためのデモコラボ商品です。",
     price: 4500,
@@ -88,8 +88,8 @@ async function main() {
   const productLivers = [
     { productId: "yui-midnight-voice", liverId: "liver-yokaze-yui" },
     { productId: "yui-birthday-2026", liverId: "liver-yokaze-yui" },
-    { productId: "yui-ren-midnight-set", liverId: "liver-yokaze-yui" },
-    { productId: "yui-ren-midnight-set", liverId: "liver-asanagi-ren" },
+    { productId: "yui-namiro-midnight-set", liverId: "liver-yokaze-yui" },
+    { productId: "yui-namiro-midnight-set", liverId: "liver-namiro" },
   ];
 
   for (const productLiver of productLivers) {
