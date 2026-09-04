@@ -12,11 +12,13 @@ export function ProductArtwork({
   category,
   name,
   imageUrl,
+  sizes,
   priority = false,
 }: {
   category: ProductCategory;
   name: string;
   imageUrl?: string | null;
+  sizes: string;
   priority?: boolean;
 }) {
   if (imageUrl) {
@@ -27,7 +29,7 @@ export function ProductArtwork({
           alt={`${name}の商品画像`}
           fill
           priority={priority}
-          sizes="(min-width: 1024px) 50vw, (min-width: 640px) 50vw, 100vw"
+          sizes={sizes}
           className="object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
       </div>

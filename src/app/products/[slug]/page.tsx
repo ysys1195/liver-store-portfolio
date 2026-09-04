@@ -55,6 +55,7 @@ export default async function ProductDetailPage({
             category={product.category}
             name={product.name}
             imageUrl={product.imageUrl}
+            sizes="(min-width: 1344px) 608px, (min-width: 1024px) calc((100vw - 8rem) / 2), (min-width: 640px) calc(100vw - 4rem), calc(100vw - 2.5rem)"
             priority
           />
           <div className="lg:py-4">

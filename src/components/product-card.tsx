@@ -22,6 +22,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
           category={product.category}
           name={product.name}
           imageUrl={product.imageUrl}
+          sizes="(min-width: 1280px) 411px, (min-width: 1024px) calc((100vw - 7rem) / 3), (min-width: 640px) calc((100vw - 5.5rem) / 2), calc(100vw - 2.5rem)"
         />
         <div className="p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
