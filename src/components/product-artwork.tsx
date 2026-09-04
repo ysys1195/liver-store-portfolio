@@ -21,14 +21,14 @@ export function ProductArtwork({
 }) {
   if (imageUrl) {
     return (
-      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-violet-50 to-slate-100">
+      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-violet-50 to-slate-100">
         <Image
           src={imageUrl}
           alt={`${name}の商品画像`}
           fill
           priority={priority}
           sizes="(min-width: 1024px) 50vw, (min-width: 640px) 50vw, 100vw"
-          className="object-contain p-4 sm:p-6"
+          className="object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
       </div>
     );
@@ -39,7 +39,7 @@ export function ProductArtwork({
       role="img"
       aria-label={`${name}のデモ用プレースホルダー画像`}
       data-priority={priority || undefined}
-      className={`relative aspect-[4/3] overflow-hidden bg-gradient-to-br ${styles[category]}`}
+      className={`relative aspect-square overflow-hidden bg-gradient-to-br ${styles[category]}`}
     >
       <div className="absolute -top-[18%] -right-[10%] size-[65%] rounded-full border-[18px] border-white/35" />
       <div className="absolute -bottom-[28%] -left-[10%] size-[70%] rounded-full bg-slate-950/10" />

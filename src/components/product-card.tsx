@@ -12,10 +12,10 @@ import { ProductStatusBadge } from "./product-status-badge";
 
 export function ProductCard({ product }: { product: StorefrontProduct }) {
   return (
-    <article className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/60">
+    <article className="group overflow-hidden border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-xl hover:shadow-slate-200/60">
       <Link
         href={`/products/${product.slug}`}
-        className="block rounded-3xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-700"
+        className="block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-700"
         aria-label={`${product.name}、${statusLabels[product.status]}の商品詳細を見る`}
       >
         <ProductArtwork

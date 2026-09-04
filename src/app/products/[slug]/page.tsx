@@ -51,14 +51,12 @@ export default async function ProductDetailPage({
           ← 商品一覧へ
         </Link>
         <article className="mt-8 grid gap-10 lg:grid-cols-2 lg:gap-16">
-          <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-200/50">
-            <ProductArtwork
-              category={product.category}
-              name={product.name}
-              imageUrl={product.imageUrl}
-              priority
-            />
-          </div>
+          <ProductArtwork
+            category={product.category}
+            name={product.name}
+            imageUrl={product.imageUrl}
+            priority
+          />
           <div className="lg:py-4">
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-xs font-bold tracking-[0.16em] text-violet-700 uppercase">
