@@ -119,8 +119,13 @@ pnpm dev
 ```
 
 起動後、[http://localhost:3000](http://localhost:3000) をブラウザで開き、
-`.env` に設定したBasic認証情報を入力してください。認証情報が未設定、または一致しない場合は
-`401 Unauthorized` となり、アプリは表示されません。
+ローカル開発では `.env` の `DISABLE_BASIC_AUTH=true` によりBasic認証なしで表示できます。
+`DISABLE_BASIC_AUTH=false` にすると、`.env` に設定したBasic認証情報の入力が必要です。
+認証情報が未設定、または一致しない場合は `401 Unauthorized` となり、アプリは表示されません。
+
+`DISABLE_BASIC_AUTH=true` が認証を無効化するのは `NODE_ENV=development` の場合だけです。
+Preview・本番環境ではこの値にかかわらずBasic認証を必須とし、認証情報がない場合も
+fail closedでアクセスを拒否します。
 
 `.env` は Git 管理外です（`.env.example` のみ管理対象）。ローカル用の値だけを設定し、秘密情報や本番の認証情報は記載しないでください。
 Basic認証情報は `NEXT_PUBLIC_` を付けず、必ずサーバー専用環境変数として設定します。
@@ -128,6 +133,7 @@ Basic認証情報は `NEXT_PUBLIC_` を付けず、必ずサーバー専用環�
 ### アクセス制限・非公式表記の確認
 
 - 未認証または誤った認証情報では `401 Unauthorized` が返る
+- ローカル開発では `DISABLE_BASIC_AUTH=true` の場合だけ認証を省略できる
 - 正しい認証情報ではTOPが表示され、初回のみ必須Disclaimerが表示される
 - 「内容を確認しました」を選ぶと、同じブラウザセッション内では再表示されない
 - 全ページ共通Footerに非公式・非商用デモである旨が表示される

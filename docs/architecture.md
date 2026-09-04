@@ -154,6 +154,10 @@ Next.js 16のリクエスト境界であるProxy（従来のMiddleware）でBasi
 fail closedとしてアクセスを拒否する。静的アセットと、クローラーへ拒否方針を伝える
 `robots.txt` のみ認証対象外とする。
 
+ローカル開発では `NODE_ENV=development` かつ `DISABLE_BASIC_AUTH=true` の場合に限り、
+開発体験のためBasic認証を省略できる。Preview・本番環境では
+`DISABLE_BASIC_AUTH` の値にかかわらず認証を必須とする。
+
 さらに以下を併用する。
 
 - Disclaimer Modal
