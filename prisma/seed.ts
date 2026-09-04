@@ -20,6 +20,7 @@ const livers = [
     slug: "yokaze-yui",
     name: "夜風ユイ",
     description: "夜更けの時間をテーマに活動する、デモ用の架空ライバーです。",
+    imageUrl: "/images/yokaze-yui-bust.png",
   },
   {
     id: "liver-namiro",
@@ -39,6 +40,7 @@ const products = [
     price: 1000,
     stock: 50,
     category: ProductCategory.VOICE,
+    imageUrl: "/images/yokaze-yui-voice.png",
     salesStartAt: new Date("2026-09-01T09:00:00.000Z"),
     salesEndAt: null,
   },
@@ -51,6 +53,7 @@ const products = [
     price: 3000,
     stock: 5,
     category: ProductCategory.GOODS,
+    imageUrl: "/images/yokaze-yui-birthday-goods.png",
     salesStartAt: new Date("2026-09-10T09:00:00.000Z"),
     salesEndAt: new Date("2026-10-10T14:59:59.999Z"),
   },
@@ -63,8 +66,61 @@ const products = [
     price: 4500,
     stock: 20,
     category: ProductCategory.SET,
+    imageUrl: "/images/yokaze-yui-midnight-set.png",
     salesStartAt: new Date("2026-09-15T09:00:00.000Z"),
     salesEndAt: new Date("2026-10-15T14:59:59.999Z"),
+  },
+  {
+    id: "yui-moonlight-acrylic-stand",
+    slug: "yui-moonlight-acrylic-stand",
+    name: "夜風ユイ Moonlight Acrylic Stand",
+    description:
+      "残りわずかの販売状態を確認するためのデモグッズです。実際には購入できません。",
+    price: 1800,
+    stock: 3,
+    category: ProductCategory.GOODS,
+    imageUrl: "/images/yokaze-yui-acrylic-stand.png",
+    salesStartAt: new Date("2026-09-01T09:00:00.000Z"),
+    salesEndAt: null,
+  },
+  {
+    id: "yui-starlight-keychain",
+    slug: "yui-starlight-keychain",
+    name: "夜風ユイ Starlight Keychain",
+    description:
+      "SOLD OUT表示を確認するためのデモグッズです。実際には購入できません。",
+    price: 1200,
+    stock: 0,
+    category: ProductCategory.GOODS,
+    imageUrl: "/images/yokaze-yui-keychain.png",
+    salesStartAt: new Date("2026-08-01T09:00:00.000Z"),
+    salesEndAt: null,
+  },
+  {
+    id: "yui-summer-night-voice",
+    slug: "yui-summer-night-voice",
+    name: "夜風ユイ Summer Night Voice",
+    description:
+      "販売終了表示を確認するためのデモボイス商品です。実際には購入できません。",
+    price: 800,
+    stock: 12,
+    category: ProductCategory.VOICE,
+    imageUrl: "/images/yokaze-yui-voice-summer-night.png",
+    salesStartAt: new Date("2026-07-01T09:00:00.000Z"),
+    salesEndAt: new Date("2026-08-31T14:59:59.999Z"),
+  },
+  {
+    id: "yui-next-century-voice",
+    slug: "yui-next-century-voice",
+    name: "夜風ユイ Next Century Voice",
+    description:
+      "COMING SOON表示を長期間確認できるようにするためのデモボイス商品です。実際には購入できません。",
+    price: 1500,
+    stock: 25,
+    category: ProductCategory.VOICE,
+    imageUrl: "/images/yokaze-yui-voice-next-century.png",
+    salesStartAt: new Date("2099-01-01T09:00:00.000Z"),
+    salesEndAt: null,
   },
 ] as const;
 
@@ -90,6 +146,13 @@ async function main() {
     { productId: "yui-birthday-2026", liverId: "liver-yokaze-yui" },
     { productId: "yui-namiro-midnight-set", liverId: "liver-yokaze-yui" },
     { productId: "yui-namiro-midnight-set", liverId: "liver-namiro" },
+    {
+      productId: "yui-moonlight-acrylic-stand",
+      liverId: "liver-yokaze-yui",
+    },
+    { productId: "yui-starlight-keychain", liverId: "liver-yokaze-yui" },
+    { productId: "yui-summer-night-voice", liverId: "liver-yokaze-yui" },
+    { productId: "yui-next-century-voice", liverId: "liver-yokaze-yui" },
   ];
 
   for (const productLiver of productLivers) {
