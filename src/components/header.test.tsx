@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { Header } from "./header";
 
 describe("Header", () => {
-  it("ロゴからTOPへ、Productsから商品一覧へ移動できる", () => {
+  it("ロゴ、Products、Cartの各画面へ移動できる", () => {
     render(<Header />);
 
     expect(
@@ -13,6 +13,10 @@ describe("Header", () => {
     expect(screen.getByRole("link", { name: "Products" })).toHaveAttribute(
       "href",
       "/products",
+    );
+    expect(screen.getByRole("link", { name: "カート" })).toHaveAttribute(
+      "href",
+      "/cart",
     );
   });
 });

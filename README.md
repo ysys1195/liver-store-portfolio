@@ -217,6 +217,7 @@ src/
 ├── app/          # App Routerのページ・レイアウト
 ├── components/   # 共通UIコンポーネント
 ├── lib/          # 共通ロジック・サーバー処理
+├── stores/       # Zustandによるクライアント状態
 └── types/        # 共通の型定義
 ```
 

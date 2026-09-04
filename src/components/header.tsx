@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { CartLink } from "./cart-link";
+
 export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/60 bg-white/90 backdrop-blur-xl">
@@ -21,13 +23,17 @@ export function Header() {
             </span>
           </span>
         </Link>
-        <nav aria-label="メインナビゲーション">
+        <nav
+          className="flex items-center gap-2"
+          aria-label="メインナビゲーション"
+        >
           <Link
             href="/products"
-            className="rounded-full border border-slate-300 px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-violet-700 hover:text-violet-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-700 sm:px-6"
+            className="hidden rounded-full border border-slate-300 px-5 py-2 text-sm font-bold text-slate-800 transition hover:border-violet-700 hover:text-violet-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-700 sm:inline-flex"
           >
             Products
           </Link>
+          <CartLink />
         </nav>
       </div>
     </header>

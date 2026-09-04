@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AddToCart } from "@/components/add-to-cart";
 import { ProductArtwork } from "@/components/product-artwork";
 import { ProductStatusBadge } from "@/components/product-status-badge";
 import {
@@ -82,16 +83,27 @@ export default async function ProductDetailPage({
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 {availabilityText}
               </p>
-              <button
-                type="button"
-                disabled
-                className="mt-5 w-full cursor-not-allowed rounded-xl bg-slate-200 px-5 py-3 font-bold text-slate-500"
-              >
-                {isAvailable ? "カートに追加（準備中）" : availabilityText}
-              </button>
-              <p className="mt-3 text-xs leading-5 text-slate-500">
-                現在は商品閲覧のみご利用いただけます。カート機能は準備中です。
-              </p>
+              {isAvailable ? (
+                <AddToCart
+                  product={{
+                    id: product.id,
+                    slug: product.slug,
+                    name: product.name,
+                    price: product.price,
+                    maxStock: product.stock,
+                    category: product.category,
+                    imageUrl: product.imageUrl,
+                  }}
+                />
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="mt-5 w-full cursor-not-allowed rounded-xl bg-slate-200 px-5 py-3 font-bold text-slate-500"
+                >
+                  {availabilityText}
+                </button>
+              )}
             </div>
           </div>
           <section
