@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { QueryProvider } from "@/components/query-provider";
 
 import "./globals.css";
 
@@ -23,11 +24,13 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <div className="flex min-h-screen flex-col">
-          <Header />
-          <div className="flex-1">{children}</div>
-          <Footer />
-        </div>
+        <QueryProvider>
+          <div className="flex min-h-screen flex-col">
+            <Header />
+            <div className="flex-1">{children}</div>
+            <Footer />
+          </div>
+        </QueryProvider>
       </body>
     </html>
   );

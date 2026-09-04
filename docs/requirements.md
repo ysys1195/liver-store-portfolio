@@ -101,7 +101,8 @@ ANYCOLORのエンジニア職への応募時に提示する、非公式・非商
 
 ### Retry
 
-- GET系APIは安全な範囲で自動Retryする
+- 在庫GETは通信エラーと5xxに限って最大2回まで自動Retryする
+- 商品なしを示す404は自動Retryしない
 - 自動Retry後も失敗した場合は手動Retry UIを表示する
 - 注文処理はIdempotency Keyを前提に安全な再送を設計する
 
@@ -120,6 +121,7 @@ ANYCOLORのエンジニア職への応募時に提示する、非公式・非商
 ### API Cache
 
 TanStack Queryを使用し、必要なクライアント取得データをキャッシュする。
+商品在庫は30秒でstaleとし、HTTP側には保存せずQuery側で再取得を管理する。
 
 ### stale data
 
@@ -127,6 +129,7 @@ TanStack Queryを使用し、必要なクライアント取得データをキャ
 - 購入APIでは画面上の在庫を信用しない
 - 409受信後は該当商品のQueryをinvalidateして最新状態を取得する
 - 必要に応じてwindow focus時のrefetchを利用する
+- 商品詳細の在庫はstale状態でwindow focusした場合にrefetchする
 
 ### ボタン連打防止
 

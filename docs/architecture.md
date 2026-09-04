@@ -82,6 +82,18 @@ Chrome DevToolsなどからリクエスト内容は確認・改変できる。
 - 購入後の最新商品状態
 - Retryが必要なデータ
 
+ルートには最小限の `QueryClientProvider` を配置し、商品詳細の在庫パネルだけを
+Client ComponentとしてAPIへ接続する。商品本体の初期表示は引き続きServer Componentで
+サーバー関数を直接呼び出す。
+
+在庫Queryは次の境界を共有する。
+
+- Query key: `["product", productId, "inventory"]`
+- 30秒の `staleTime`
+- 通信エラーと5xxのみ最大2回Retry
+- stale状態でwindow focusした場合にrefetch
+- 注文処理から利用できる商品単位のinvalidation helper
+
 ### Zustand
 
 サーバーに永続化する必要のないクライアント状態に使用する。
@@ -184,3 +196,7 @@ APIレスポンスではクライアントが処理可能なエラーコード�
 ```
 
 ログには詳細を残し、UI向けメッセージと分離する。
+
+Inventory Route Handlerは商品なしを `PRODUCT_NOT_FOUND` / 404へ変換し、その他の
+例外は内部詳細を伏せた `INTERNAL_ERROR` / 500へ変換する。クライアントは404と
+一時的な取得失敗を異なる文言で表示し、どちらも最終失敗後に手動再取得を提供する。

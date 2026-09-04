@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AddToCart } from "@/components/add-to-cart";
+import { InventoryPanel } from "@/components/inventory-panel";
 import { ProductArtwork } from "@/components/product-artwork";
 import { ProductStatusBadge } from "@/components/product-status-badge";
 import {
@@ -78,6 +79,7 @@ export default async function ProductDetailPage({
                 税込
               </span>
             </p>
+            <InventoryPanel productId={product.id} />
             <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5">
               <p className="text-sm font-bold text-slate-950">販売状況</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
