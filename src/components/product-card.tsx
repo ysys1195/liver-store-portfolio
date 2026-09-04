@@ -17,7 +17,11 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
         className="block rounded-3xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-700"
         aria-label={`${product.name}の商品詳細を見る`}
       >
-        <ProductArtwork category={product.category} name={product.name} />
+        <ProductArtwork
+          category={product.category}
+          name={product.name}
+          imageUrl={product.imageUrl}
+        />
         <div className="p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-xs font-bold tracking-[0.14em] text-violet-700 uppercase">

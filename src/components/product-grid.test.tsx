@@ -13,6 +13,7 @@ const baseProduct: StorefrontProduct = {
   price: 1000,
   stock: 10,
   category: "VOICE",
+  imageUrl: null,
   salesStartAt: "2026-09-01T00:00:00.000Z",
   salesEndAt: null,
   status: "on_sale",
@@ -27,6 +28,7 @@ const products: StorefrontProduct[] = [
     slug: "demo-goods",
     name: "Demo Goods",
     category: "GOODS",
+    imageUrl: "/images/demo-goods.png",
     status: "sold_out",
   },
   {
@@ -49,6 +51,9 @@ describe("ProductGrid", () => {
     expect(screen.getByText("販売中")).toBeInTheDocument();
     expect(screen.getByText("SOLD OUT")).toBeInTheDocument();
     expect(screen.getByText("COMING SOON")).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: "Demo Goodsの商品画像" }),
+    ).toBeInTheDocument();
   });
 
   it("選択したカテゴリだけに絞り込む", () => {

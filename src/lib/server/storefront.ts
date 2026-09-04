@@ -16,6 +16,7 @@ const storefrontProductSelect = {
   price: true,
   stock: true,
   category: true,
+  imageUrl: true,
   salesStartAt: true,
   salesEndAt: true,
   productLivers: {
@@ -31,6 +32,7 @@ type StorefrontRow = {
   price: number;
   stock: number;
   category: ProductCategory;
+  imageUrl: string | null;
   salesStartAt: Date;
   salesEndAt: Date | null;
   productLivers: { liver: { name: string } }[];
@@ -74,6 +76,6 @@ export async function getProductBySlug(slug: string, now = new Date()) {
 export async function getFeaturedLiver() {
   return getPrisma().liver.findUnique({
     where: { slug: "yokaze-yui" },
-    select: { name: true, description: true },
+    select: { name: true, description: true, imageUrl: true },
   });
 }

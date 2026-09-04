@@ -20,6 +20,7 @@ const livers = [
     slug: "yokaze-yui",
     name: "夜風ユイ",
     description: "夜更けの時間をテーマに活動する、デモ用の架空ライバーです。",
+    imageUrl: "/images/yokaze-yui-bust.png",
   },
   {
     id: "liver-namiro",
@@ -75,6 +76,7 @@ const products = [
     price: 1800,
     stock: 3,
     category: ProductCategory.GOODS,
+    imageUrl: "/images/yokaze-yui-acrylic-stand.png",
     salesStartAt: new Date("2026-09-01T09:00:00.000Z"),
     salesEndAt: null,
   },

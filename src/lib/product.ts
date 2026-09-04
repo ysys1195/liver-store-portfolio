@@ -12,6 +12,7 @@ export type StorefrontProduct = {
   price: number;
   stock: number;
   category: ProductCategory;
+  imageUrl: string | null;
   salesStartAt: string;
   salesEndAt: string | null;
   status: ProductStatus;

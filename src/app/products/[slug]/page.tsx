@@ -55,6 +55,7 @@ export default async function ProductDetailPage({
             <ProductArtwork
               category={product.category}
               name={product.name}
+              imageUrl={product.imageUrl}
               priority
             />
           </div>

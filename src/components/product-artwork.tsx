@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import type { ProductCategory } from "@/lib/product";
 
 const styles: Record<ProductCategory, string> = {
@@ -9,12 +11,29 @@ const styles: Record<ProductCategory, string> = {
 export function ProductArtwork({
   category,
   name,
+  imageUrl,
   priority = false,
 }: {
   category: ProductCategory;
   name: string;
+  imageUrl?: string | null;
   priority?: boolean;
 }) {
+  if (imageUrl) {
+    return (
+      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-violet-50 to-slate-100">
+        <Image
+          src={imageUrl}
+          alt={`${name}の商品画像`}
+          fill
+          priority={priority}
+          sizes="(min-width: 1024px) 50vw, (min-width: 640px) 50vw, 100vw"
+          className="object-contain p-4 sm:p-6"
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       role="img"

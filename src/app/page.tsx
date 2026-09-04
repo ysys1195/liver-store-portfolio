@@ -1,7 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { DisclaimerModal } from "@/components/disclaimer-modal";
-import { ProductArtwork } from "@/components/product-artwork";
 import { ProductCard } from "@/components/product-card";
 import { ProductStatusBadge } from "@/components/product-status-badge";
 import { formatPrice } from "@/lib/product";
@@ -24,9 +24,20 @@ export default async function Home() {
       <DisclaimerModal />
       <main>
         {heroProduct ? (
-          <section className="overflow-hidden bg-slate-950 text-white">
-            <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
-              <div className="order-2 lg:order-1">
+          <section className="relative overflow-hidden bg-slate-950 text-white">
+            <div className="relative aspect-[16/9] lg:absolute lg:inset-0 lg:aspect-auto">
+              <Image
+                src="/images/yokaze-yui-banner.png"
+                alt="夜風ユイの月夜をテーマにしたキービジュアル"
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover object-center"
+              />
+              <div className="absolute inset-0 hidden bg-gradient-to-r from-slate-950 via-slate-950/85 to-slate-950/10 lg:block" />
+            </div>
+            <div className="relative mx-auto grid max-w-7xl items-center px-5 py-12 sm:px-8 sm:py-16 lg:min-h-[680px] lg:grid-cols-2 lg:py-20">
+              <div>
                 <p className="text-xs font-bold tracking-[0.24em] text-violet-300 uppercase">
                   New release · {heroProduct.liverNames.join(" / ")}
                 </p>
@@ -56,13 +67,6 @@ export default async function Home() {
                     →
                   </span>
                 </Link>
-              </div>
-              <div className="order-1 overflow-hidden rounded-[2rem] border border-white/20 shadow-2xl shadow-violet-950/50 lg:order-2">
-                <ProductArtwork
-                  category={heroProduct.category}
-                  name={heroProduct.name}
-                  priority
-                />
               </div>
             </div>
           </section>
@@ -112,15 +116,24 @@ export default async function Home() {
             aria-labelledby="liver-title"
           >
             <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-center">
-              <div
-                role="img"
-                aria-label={`${liver.name}のデモ用プロフィール画像`}
-                className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-full bg-gradient-to-br from-slate-950 via-violet-900 to-fuchsia-600"
-              >
-                <div className="absolute top-[18%] left-[20%] size-[60%] rounded-full border border-white/30" />
-                <div className="absolute inset-0 grid place-items-center text-7xl font-black text-white/90 sm:text-8xl">
-                  Y
-                </div>
+              <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-950 via-violet-900 to-fuchsia-600">
+                {liver.imageUrl ? (
+                  <Image
+                    src={liver.imageUrl}
+                    alt={`${liver.name}のバストアップイラスト`}
+                    fill
+                    sizes="(min-width: 1024px) 32rem, 90vw"
+                    className="object-contain object-bottom"
+                  />
+                ) : (
+                  <div
+                    role="img"
+                    aria-label={`${liver.name}のデモ用プロフィール画像`}
+                    className="absolute inset-0 grid place-items-center text-7xl font-black text-white/90 sm:text-8xl"
+                  >
+                    Y
+                  </div>
+                )}
               </div>
               <div>
                 <p className="text-xs font-bold tracking-[0.22em] text-violet-800 uppercase">

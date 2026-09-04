@@ -3,7 +3,7 @@
 import { NextRequest } from "next/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { proxy } from "./proxy";
+import { config, proxy } from "./proxy";
 
 const request = (authorization?: string) =>
   new NextRequest("https://example.test/", {
@@ -45,5 +45,9 @@ describe("proxy", () => {
     vi.stubEnv("BASIC_AUTH_PASSWORD", "");
 
     expect(proxy(request()).status).toBe(401);
+  });
+
+  it("allows public image files to bypass the authentication matcher", () => {
+    expect(config.matcher[0]).toContain("images/");
   });
 });
