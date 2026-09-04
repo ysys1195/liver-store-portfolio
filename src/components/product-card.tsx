@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   categoryLabels,
   formatPrice,
+  statusLabels,
   type StorefrontProduct,
 } from "@/lib/product";
 
@@ -15,7 +16,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
       <Link
         href={`/products/${product.slug}`}
         className="block rounded-3xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-700"
-        aria-label={`${product.name}の商品詳細を見る`}
+        aria-label={`${product.name}、${statusLabels[product.status]}の商品詳細を見る`}
       >
         <ProductArtwork
           category={product.category}

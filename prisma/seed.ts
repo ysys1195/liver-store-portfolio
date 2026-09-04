@@ -104,6 +104,18 @@ const products = [
     salesStartAt: new Date("2026-07-01T09:00:00.000Z"),
     salesEndAt: new Date("2026-08-31T14:59:59.999Z"),
   },
+  {
+    id: "yui-next-century-voice",
+    slug: "yui-next-century-voice",
+    name: "夜風ユイ Next Century Voice",
+    description:
+      "COMING SOON表示を長期間確認できるようにするためのデモボイス商品です。実際には購入できません。",
+    price: 1500,
+    stock: 25,
+    category: ProductCategory.VOICE,
+    salesStartAt: new Date("2099-01-01T09:00:00.000Z"),
+    salesEndAt: null,
+  },
 ] as const;
 
 async function main() {
@@ -134,6 +146,7 @@ async function main() {
     },
     { productId: "yui-starlight-keychain", liverId: "liver-yokaze-yui" },
     { productId: "yui-summer-night-voice", liverId: "liver-yokaze-yui" },
+    { productId: "yui-next-century-voice", liverId: "liver-yokaze-yui" },
   ];
 
   for (const productLiver of productLivers) {

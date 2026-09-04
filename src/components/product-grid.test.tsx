@@ -46,7 +46,9 @@ describe("ProductGrid", () => {
     render(<ProductGrid products={products} />);
 
     expect(
-      screen.getByRole("link", { name: "Demo Voiceの商品詳細を見る" }),
+      screen.getByRole("link", {
+        name: "Demo Voice、販売中の商品詳細を見る",
+      }),
     ).toHaveAttribute("href", "/products/demo-voice");
     expect(screen.getByText("販売中")).toBeInTheDocument();
     expect(screen.getByText("SOLD OUT")).toBeInTheDocument();
