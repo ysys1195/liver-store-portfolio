@@ -3,6 +3,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { hasValidBasicAuthorization } from "@/lib/server/basic-auth";
 
 export function proxy(request: NextRequest) {
+  const isLocalAuthDisabled =
+    process.env.NODE_ENV === "development" &&
+    process.env.DISABLE_BASIC_AUTH === "true";
+
+  if (isLocalAuthDisabled) {
+    return NextResponse.next();
+  }
+
   const isAuthorized = hasValidBasicAuthorization(
     request.headers.get("authorization"),
     process.env.BASIC_AUTH_USER,

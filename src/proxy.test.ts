@@ -40,6 +40,27 @@ describe("proxy", () => {
     expect(response.headers.get("x-middleware-next")).toBe("1");
   });
 
+  it("allows local development to explicitly disable Basic authentication", () => {
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("DISABLE_BASIC_AUTH", "true");
+    vi.stubEnv("BASIC_AUTH_USER", "");
+    vi.stubEnv("BASIC_AUTH_PASSWORD", "");
+
+    const response = proxy(request());
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+  });
+
+  it("does not disable Basic authentication outside development", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("DISABLE_BASIC_AUTH", "true");
+    vi.stubEnv("BASIC_AUTH_USER", "viewer");
+    vi.stubEnv("BASIC_AUTH_PASSWORD", "secret");
+
+    expect(proxy(request()).status).toBe(401);
+  });
+
   it("fails closed when credentials are not configured", () => {
     vi.stubEnv("BASIC_AUTH_USER", "");
     vi.stubEnv("BASIC_AUTH_PASSWORD", "");
