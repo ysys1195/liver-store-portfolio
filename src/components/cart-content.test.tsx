@@ -107,8 +107,12 @@ describe("CartContent", () => {
     const removalMessage = await screen.findByText(
       "対象の商品が在庫切れとなったため、カートから自動で削除されました：Demo Voice",
     );
-    expect(removalMessage.closest('[aria-live="polite"]')).toHaveClass(
-      "text-red-700",
+    const removalNotice = removalMessage.closest('[aria-live="polite"]');
+    expect(removalNotice).toHaveClass(
+      "inline-flex",
+      "border-red-200",
+      "bg-red-50",
+      "text-red-800",
     );
     expect(screen.getByText("カートは空です")).toBeInTheDocument();
     expect(useCartStore.getState().items).toEqual([]);
@@ -116,7 +120,9 @@ describe("CartContent", () => {
       "Demo Voice",
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "通知を閉じる" }));
+    const dismissButton = screen.getByRole("button", { name: "通知を閉じる" });
+    expect(dismissButton.querySelector("svg")).toBeInTheDocument();
+    fireEvent.click(dismissButton);
 
     expect(screen.queryByText(/対象の商品が在庫切れとなったため/)).toBeNull();
     expect(sessionStorage.getItem(CART_SOLD_OUT_NOTICE_STORAGE_KEY)).toBeNull();

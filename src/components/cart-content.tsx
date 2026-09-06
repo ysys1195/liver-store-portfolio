@@ -49,10 +49,10 @@ export function CartContent() {
   const removalNotice =
     removedProductNames.length > 0 ? (
       <div
-        className="mb-6 flex items-start justify-between gap-4 text-sm leading-6 font-bold text-red-700"
+        className="mb-6 inline-flex max-w-full items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 font-bold text-red-800"
         aria-live="polite"
       >
-        <p>
+        <p className="min-w-0">
           対象の商品が在庫切れとなったため、カートから自動で削除されました：
           {removedProductNames.join("、")}
         </p>
@@ -60,9 +60,19 @@ export function CartContent() {
           type="button"
           aria-label="通知を閉じる"
           onClick={dismissSoldOutRemovalNotice}
-          className="grid size-8 shrink-0 place-items-center rounded-full text-xl leading-none text-red-700 transition hover:bg-red-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
+          className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-red-200 bg-white text-red-700 transition hover:bg-red-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
         >
-          ×
+          <svg
+            viewBox="0 0 20 20"
+            aria-hidden="true"
+            className="size-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
+            <path d="M5 5l10 10M15 5L5 15" />
+          </svg>
         </button>
       </div>
     ) : null;
