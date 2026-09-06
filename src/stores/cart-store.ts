@@ -1,11 +1,39 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import {
+  createJSONStorage,
+  persist,
+  type StateStorage,
+} from "zustand/middleware";
 
 import { productCategories, type ProductCategory } from "@/lib/product";
 
 export const CART_STORAGE_KEY = "liver-store-demo-cart";
+
+const safeLocalStorage: StateStorage = {
+  getItem: (name) => {
+    try {
+      return window.localStorage.getItem(name);
+    } catch {
+      return null;
+    }
+  },
+  setItem: (name, value) => {
+    try {
+      window.localStorage.setItem(name, value);
+    } catch {
+      // Keep the in-memory cart usable when browser storage is unavailable.
+    }
+  },
+  removeItem: (name) => {
+    try {
+      window.localStorage.removeItem(name);
+    } catch {
+      // There is no persisted cart to remove when storage is unavailable.
+    }
+  },
+};
 
 export type CartProduct = {
   id: string;
@@ -130,6 +158,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: CART_STORAGE_KEY,
+      storage: createJSONStorage(() => safeLocalStorage),
       skipHydration: true,
       partialize: (state) => ({ items: state.items }),
       merge: (persistedState, currentState) => ({

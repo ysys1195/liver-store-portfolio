@@ -124,8 +124,16 @@ pnpm dev
 認証情報が未設定、または一致しない場合は `401 Unauthorized` となり、アプリは表示されません。
 
 `DISABLE_BASIC_AUTH=true` が認証を無効化するのは `NODE_ENV=development` の場合だけです。
-Preview・本番環境ではこの値にかかわらずBasic認証を必須とし、認証情報がない場合も
-fail closedでアクセスを拒否します。
+通常の `pnpm dev` は `127.0.0.1` だけで待ち受けるため、認証を省略しても別端末からは
+接続できません。Preview・本番環境ではこの値にかかわらずBasic認証を必須とし、
+認証情報がない場合もfail closedでアクセスを拒否します。
+
+スマートフォンなど同一LANの別端末から確認する場合は、先に `.env` の
+`DISABLE_BASIC_AUTH=false` へ変更してから、次のように明示的に起動してください。
+
+```bash
+pnpm exec next dev --hostname 0.0.0.0
+```
 
 `.env` は Git 管理外です（`.env.example` のみ管理対象）。ローカル用の値だけを設定し、秘密情報や本番の認証情報は記載しないでください。
 Basic認証情報は `NEXT_PUBLIC_` を付けず、必ずサーバー専用環境変数として設定します。
@@ -133,7 +141,8 @@ Basic認証情報は `NEXT_PUBLIC_` を付けず、必ずサーバー専用環�
 ### アクセス制限・非公式表記の確認
 
 - 未認証または誤った認証情報では `401 Unauthorized` が返る
-- ローカル開発では `DISABLE_BASIC_AUTH=true` の場合だけ認証を省略できる
+- loopbackだけで待ち受ける通常のローカル開発では、`DISABLE_BASIC_AUTH=true` の場合に認証を省略できる
+- LANへ公開するときは `DISABLE_BASIC_AUTH=false` にしてBasic認証を有効化する
 - 正しい認証情報ではTOPが表示され、初回のみ必須Disclaimerが表示される
 - 「内容を確認しました」を選ぶと、同じブラウザセッション内では再表示されない
 - 全ページ共通Footerに非公式・非商用デモである旨が表示される

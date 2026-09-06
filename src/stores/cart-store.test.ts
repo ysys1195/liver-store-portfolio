@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   CART_STORAGE_KEY,
@@ -22,6 +22,10 @@ describe("cart store", () => {
   beforeEach(() => {
     localStorage.clear();
     useCartStore.setState({ items: [], hasHydrated: false });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("商品追加と数量更新を在庫上限内に制限する", () => {
@@ -99,6 +103,22 @@ describe("cart store", () => {
     expect(useCartStore.getState().hasHydrated).toBe(true);
     expect(useCartStore.getState().items).toEqual([
       { ...product, quantity: 2 },
+    ]);
+  });
+
+  it("localStorageが利用できなくてもメモリ上のカートを操作できる", async () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new DOMException("Storage blocked", "SecurityError");
+    });
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("Storage blocked", "SecurityError");
+    });
+
+    await expect(useCartStore.persist.rehydrate()).resolves.toBeUndefined();
+    expect(useCartStore.getState().hasHydrated).toBe(true);
+    expect(() => useCartStore.getState().addItem(product)).not.toThrow();
+    expect(useCartStore.getState().items).toEqual([
+      { ...product, quantity: 1 },
     ]);
   });
 });
