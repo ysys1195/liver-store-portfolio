@@ -19,9 +19,19 @@ export function CartContent() {
     (state) => state.soldOutRemovalNames,
   );
   const removeSoldOutItems = useCartStore((state) => state.removeSoldOutItems);
+  const restoreSoldOutRemovalNotice = useCartStore(
+    (state) => state.restoreSoldOutRemovalNotice,
+  );
+  const dismissSoldOutRemovalNotice = useCartStore(
+    (state) => state.dismissSoldOutRemovalNotice,
+  );
   const inventoryQueries = useQueries({
     queries: items.map((item) => inventoryQueryOptions(item.id)),
   });
+
+  useEffect(() => {
+    restoreSoldOutRemovalNotice();
+  }, [restoreSoldOutRemovalNotice]);
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -38,13 +48,23 @@ export function CartContent() {
 
   const removalNotice =
     removedProductNames.length > 0 ? (
-      <p
-        className="mb-6 text-sm leading-6 font-bold text-red-700"
+      <div
+        className="mb-6 flex items-start justify-between gap-4 text-sm leading-6 font-bold text-red-700"
         aria-live="polite"
       >
-        対象の商品が在庫切れとなったため、カートから自動で削除されました：
-        {removedProductNames.join("、")}
-      </p>
+        <p>
+          対象の商品が在庫切れとなったため、カートから自動で削除されました：
+          {removedProductNames.join("、")}
+        </p>
+        <button
+          type="button"
+          aria-label="通知を閉じる"
+          onClick={dismissSoldOutRemovalNotice}
+          className="grid size-8 shrink-0 place-items-center rounded-full text-xl leading-none text-red-700 transition hover:bg-red-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
+        >
+          ×
+        </button>
+      </div>
     ) : null;
 
   if (!hasHydrated) {

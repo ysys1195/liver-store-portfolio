@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  CART_SOLD_OUT_NOTICE_STORAGE_KEY,
   CART_STORAGE_KEY,
   getCartItemCount,
   getCartSubtotal,
@@ -21,6 +22,7 @@ const product: CartProduct = {
 describe("cart store", () => {
   beforeEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
     useCartStore.setState({
       items: [],
       hasHydrated: false,
@@ -90,6 +92,17 @@ describe("cart store", () => {
       { ...availableProduct, quantity: 1 },
     ]);
     expect(useCartStore.getState().soldOutRemovalNames).toEqual(["Demo Voice"]);
+    expect(sessionStorage.getItem(CART_SOLD_OUT_NOTICE_STORAGE_KEY)).toBe(
+      '["Demo Voice"]',
+    );
+
+    useCartStore.setState({ soldOutRemovalNames: [] });
+    useCartStore.getState().restoreSoldOutRemovalNotice();
+    expect(useCartStore.getState().soldOutRemovalNames).toEqual(["Demo Voice"]);
+
+    useCartStore.getState().dismissSoldOutRemovalNotice();
+    expect(useCartStore.getState().soldOutRemovalNames).toEqual([]);
+    expect(sessionStorage.getItem(CART_SOLD_OUT_NOTICE_STORAGE_KEY)).toBeNull();
   });
 
   it("追加した商品をlocalStorageへ保存し、再読み込み相当で復元する", async () => {

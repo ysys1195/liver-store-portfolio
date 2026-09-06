@@ -2,7 +2,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useCartStore } from "@/stores/cart-store";
+import {
+  CART_SOLD_OUT_NOTICE_STORAGE_KEY,
+  useCartStore,
+} from "@/stores/cart-store";
 
 import { CartContent } from "./cart-content";
 
@@ -29,6 +32,7 @@ function renderCart() {
 describe("CartContent", () => {
   beforeEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
     useCartStore.setState({
       items: [],
       hasHydrated: true,
@@ -100,12 +104,21 @@ describe("CartContent", () => {
 
     renderCart();
 
-    expect(
-      await screen.findByText(
-        "対象の商品が在庫切れとなったため、カートから自動で削除されました：Demo Voice",
-      ),
-    ).toHaveClass("text-red-700");
+    const removalMessage = await screen.findByText(
+      "対象の商品が在庫切れとなったため、カートから自動で削除されました：Demo Voice",
+    );
+    expect(removalMessage.closest('[aria-live="polite"]')).toHaveClass(
+      "text-red-700",
+    );
     expect(screen.getByText("カートは空です")).toBeInTheDocument();
     expect(useCartStore.getState().items).toEqual([]);
+    expect(sessionStorage.getItem(CART_SOLD_OUT_NOTICE_STORAGE_KEY)).toContain(
+      "Demo Voice",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "通知を閉じる" }));
+
+    expect(screen.queryByText(/対象の商品が在庫切れとなったため/)).toBeNull();
+    expect(sessionStorage.getItem(CART_SOLD_OUT_NOTICE_STORAGE_KEY)).toBeNull();
   });
 });

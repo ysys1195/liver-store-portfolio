@@ -10,6 +10,8 @@ import {
 import { productCategories, type ProductCategory } from "@/lib/product";
 
 export const CART_STORAGE_KEY = "liver-store-demo-cart";
+export const CART_SOLD_OUT_NOTICE_STORAGE_KEY =
+  "liver-store-sold-out-removal-notice";
 
 const safeLocalStorage: StateStorage = {
   getItem: (name) => {
@@ -35,6 +37,45 @@ const safeLocalStorage: StateStorage = {
   },
 };
 
+function readSoldOutRemovalNames() {
+  try {
+    const value = window.sessionStorage.getItem(
+      CART_SOLD_OUT_NOTICE_STORAGE_KEY,
+    );
+    if (!value) return [];
+
+    const parsed: unknown = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+
+    return [
+      ...new Set(
+        parsed.filter(
+          (name): name is string =>
+            typeof name === "string" && name.trim().length > 0,
+        ),
+      ),
+    ];
+  } catch {
+    return [];
+  }
+}
+
+function saveSoldOutRemovalNames(names: string[]) {
+  try {
+    if (names.length === 0) {
+      window.sessionStorage.removeItem(CART_SOLD_OUT_NOTICE_STORAGE_KEY);
+      return;
+    }
+
+    window.sessionStorage.setItem(
+      CART_SOLD_OUT_NOTICE_STORAGE_KEY,
+      JSON.stringify(names),
+    );
+  } catch {
+    // Keep the in-memory notice usable when browser storage is unavailable.
+  }
+}
+
 export type CartProduct = {
   id: string;
   slug: string;
@@ -57,6 +98,8 @@ type CartState = {
   updateQuantity: (productId: string, quantity: number) => void;
   removeItem: (productId: string) => void;
   removeSoldOutItems: (products: Array<{ id: string; name: string }>) => void;
+  restoreSoldOutRemovalNotice: () => void;
+  dismissSoldOutRemovalNotice: () => void;
   clearCart: () => void;
   setHasHydrated: (hasHydrated: boolean) => void;
 };
@@ -156,7 +199,9 @@ export const useCartStore = create<CartState>()(
         set((state) => ({
           items: state.items.filter((item) => item.id !== productId),
         })),
-      removeSoldOutItems: (products) =>
+      removeSoldOutItems: (products) => {
+        let namesToPersist: string[] | null = null;
+
         set((state) => {
           const productIds = new Set(products.map((product) => product.id));
           const removedItems = state.items.filter((item) =>
@@ -165,17 +210,28 @@ export const useCartStore = create<CartState>()(
 
           if (removedItems.length === 0) return state;
 
+          namesToPersist = [
+            ...new Set([
+              ...state.soldOutRemovalNames,
+              ...removedItems.map((item) => item.name),
+            ]),
+          ];
+
           return {
             items: state.items.filter((item) => !productIds.has(item.id)),
-            soldOutRemovalNames: [
-              ...new Set([
-                ...state.soldOutRemovalNames,
-                ...removedItems.map((item) => item.name),
-              ]),
-            ],
+            soldOutRemovalNames: namesToPersist,
           };
-        }),
-      clearCart: () => set({ items: [], soldOutRemovalNames: [] }),
+        });
+
+        if (namesToPersist) saveSoldOutRemovalNames(namesToPersist);
+      },
+      restoreSoldOutRemovalNotice: () =>
+        set({ soldOutRemovalNames: readSoldOutRemovalNames() }),
+      dismissSoldOutRemovalNotice: () => {
+        set({ soldOutRemovalNames: [] });
+        saveSoldOutRemovalNames([]);
+      },
+      clearCart: () => set({ items: [] }),
       setHasHydrated: (hasHydrated) => set({ hasHydrated }),
     }),
     {
