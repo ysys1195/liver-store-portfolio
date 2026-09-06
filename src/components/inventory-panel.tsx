@@ -2,11 +2,48 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { AddToCart } from "@/components/add-to-cart";
+import { ProductStatusBadge } from "@/components/product-status-badge";
 import { InventoryApiError, inventoryQueryOptions } from "@/lib/inventory";
-import { statusLabels } from "@/lib/product";
+import {
+  formatSaleDate,
+  statusLabels,
+  type ProductCategory,
+  type ProductStatus,
+} from "@/lib/product";
 
-export function InventoryPanel({ productId }: { productId: string }) {
+type InventoryPanelProduct = {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  category: ProductCategory;
+  imageUrl: string | null;
+  salesStartAt: string;
+};
+
+type InventoryStatusBadgeProps = {
+  productId: string;
+  initialStatus: ProductStatus;
+};
+
+export function InventoryStatusBadge({
+  productId,
+  initialStatus,
+}: InventoryStatusBadgeProps) {
   const inventory = useQuery(inventoryQueryOptions(productId));
+
+  return (
+    <ProductStatusBadge status={inventory.data?.status ?? initialStatus} />
+  );
+}
+
+export function InventoryPanel({
+  product,
+}: {
+  product: InventoryPanelProduct;
+}) {
+  const inventory = useQuery(inventoryQueryOptions(product.id));
 
   if (inventory.isPending) {
     return (
@@ -18,6 +55,13 @@ export function InventoryPanel({ productId }: { productId: string }) {
         <p className="text-sm font-bold text-slate-950">最新の在庫</p>
         <div className="mt-3 h-5 w-36 animate-pulse rounded bg-slate-200" />
         <span className="sr-only">在庫情報を読み込み中です。</span>
+        <button
+          type="button"
+          disabled
+          className="mt-5 w-full cursor-wait rounded-xl bg-slate-200 px-5 py-3 font-bold text-slate-500"
+        >
+          在庫を確認中...
+        </button>
       </section>
     );
   }
@@ -55,30 +99,67 @@ export function InventoryPanel({ productId }: { productId: string }) {
     );
   }
 
+  const isAvailable =
+    inventory.data.status === "on_sale" ||
+    inventory.data.status === "low_stock";
+  const availabilityText =
+    inventory.data.status === "upcoming"
+      ? `${formatSaleDate(product.salesStartAt)} 販売開始`
+      : statusLabels[inventory.data.status];
+
   return (
-    <section
-      aria-label="最新の在庫情報"
-      className="mt-8 rounded-2xl border border-slate-200 bg-white p-5"
-    >
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-bold text-slate-950">最新の在庫</p>
-        {inventory.isFetching && (
-          <span className="text-xs text-slate-500">更新中...</span>
+    <>
+      <section
+        aria-label="最新の在庫情報"
+        className="mt-8 rounded-2xl border border-slate-200 bg-white p-5"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm font-bold text-slate-950">最新の在庫</p>
+          {inventory.isFetching && (
+            <span className="text-xs text-slate-500">更新中...</span>
+          )}
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {inventory.data.stock > 0
+            ? `在庫 ${inventory.data.stock}点・${statusLabels[inventory.data.status]}`
+            : statusLabels[inventory.data.status]}
+        </p>
+        <button
+          type="button"
+          onClick={() => void inventory.refetch()}
+          disabled={inventory.isFetching}
+          className="mt-3 text-sm font-bold text-violet-700 underline-offset-4 hover:underline disabled:cursor-wait disabled:text-slate-400"
+        >
+          在庫を更新
+        </button>
+      </section>
+      <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5">
+        <p className="text-sm font-bold text-slate-950">販売状況</p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {availabilityText}
+        </p>
+        {isAvailable ? (
+          <AddToCart
+            product={{
+              id: product.id,
+              slug: product.slug,
+              name: product.name,
+              price: product.price,
+              maxStock: inventory.data.stock,
+              category: product.category,
+              imageUrl: product.imageUrl,
+            }}
+          />
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="mt-5 w-full cursor-not-allowed rounded-xl bg-slate-200 px-5 py-3 font-bold text-slate-500"
+          >
+            {availabilityText}
+          </button>
         )}
       </div>
-      <p className="mt-2 text-sm leading-6 text-slate-600">
-        {inventory.data.stock > 0
-          ? `在庫 ${inventory.data.stock}点・${statusLabels[inventory.data.status]}`
-          : statusLabels[inventory.data.status]}
-      </p>
-      <button
-        type="button"
-        onClick={() => void inventory.refetch()}
-        disabled={inventory.isFetching}
-        className="mt-3 text-sm font-bold text-violet-700 underline-offset-4 hover:underline disabled:cursor-wait disabled:text-slate-400"
-      >
-        在庫を更新
-      </button>
-    </section>
+    </>
   );
 }
