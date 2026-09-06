@@ -110,6 +110,7 @@ describe("CartContent", () => {
     const removalNotice = removalMessage.closest('[aria-live="polite"]');
     expect(removalNotice).toHaveClass(
       "inline-flex",
+      "items-center",
       "border-red-200",
       "bg-red-50",
       "text-red-800",

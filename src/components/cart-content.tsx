@@ -49,7 +49,7 @@ export function CartContent() {
   const removalNotice =
     removedProductNames.length > 0 ? (
       <div
-        className="mb-6 inline-flex max-w-full items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 font-bold text-red-800"
+        className="mb-6 inline-flex max-w-full items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 font-bold text-red-800"
         aria-live="polite"
       >
         <p className="min-w-0">
@@ -60,7 +60,7 @@ export function CartContent() {
           type="button"
           aria-label="通知を閉じる"
           onClick={dismissSoldOutRemovalNotice}
-          className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-red-200 bg-white text-red-700 transition hover:bg-red-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
+          className="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-red-200 bg-white text-red-700 transition hover:bg-red-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
         >
           <svg
             viewBox="0 0 20 20"
