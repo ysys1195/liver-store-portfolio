@@ -114,6 +114,10 @@ Server Componentでサーバー関数を直接呼び出す。
 用い、将来の注文処理ではDBから取得した値を正とする。ブラウザ設定などで
 `localStorage` が利用できない場合は、永続化せずメモリ上のカートとして動作を継続する。
 
+カート画面ではhydrate後の商品IDごとに同じInventory Queryを購読する。最新在庫が0と
+確認できた商品だけをZustandと`localStorage`から自動削除し、画面には対象商品名と理由を
+赤文字で残す。QueryがLoadingまたはErrorの間は、通信失敗を在庫切れと誤認して削除しない。
+
 ## 4. 環境
 
 ### Local

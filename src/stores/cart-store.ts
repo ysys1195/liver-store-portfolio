@@ -52,9 +52,11 @@ export type CartItem = CartProduct & {
 type CartState = {
   items: CartItem[];
   hasHydrated: boolean;
+  soldOutRemovalNames: string[];
   addItem: (product: CartProduct, quantity?: number) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   removeItem: (productId: string) => void;
+  removeSoldOutItems: (products: Array<{ id: string; name: string }>) => void;
   clearCart: () => void;
   setHasHydrated: (hasHydrated: boolean) => void;
 };
@@ -118,6 +120,7 @@ export const useCartStore = create<CartState>()(
     (set) => ({
       items: [],
       hasHydrated: false,
+      soldOutRemovalNames: [],
       addItem: (product, quantity = 1) => {
         if (!Number.isInteger(product.maxStock) || product.maxStock < 1) return;
 
@@ -153,7 +156,26 @@ export const useCartStore = create<CartState>()(
         set((state) => ({
           items: state.items.filter((item) => item.id !== productId),
         })),
-      clearCart: () => set({ items: [] }),
+      removeSoldOutItems: (products) =>
+        set((state) => {
+          const productIds = new Set(products.map((product) => product.id));
+          const removedItems = state.items.filter((item) =>
+            productIds.has(item.id),
+          );
+
+          if (removedItems.length === 0) return state;
+
+          return {
+            items: state.items.filter((item) => !productIds.has(item.id)),
+            soldOutRemovalNames: [
+              ...new Set([
+                ...state.soldOutRemovalNames,
+                ...removedItems.map((item) => item.name),
+              ]),
+            ],
+          };
+        }),
+      clearCart: () => set({ items: [], soldOutRemovalNames: [] }),
       setHasHydrated: (hasHydrated) => set({ hasHydrated }),
     }),
     {
