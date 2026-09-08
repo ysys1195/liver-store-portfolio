@@ -84,6 +84,7 @@ PostgreSQL
 - [アーキテクチャ](docs/architecture.md)
 - [API設計](docs/api-design.md)
 - [DB設計](docs/database-design.md)
+- [本番DB基盤・migration運用](docs/production-database.md)
 - [アクセス集中デモ設計](docs/flash-sale-design.md)
 - [Issue計画](docs/issue-plan.md)
 

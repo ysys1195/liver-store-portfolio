@@ -209,3 +209,6 @@ pnpm prisma migrate dev
 # production
 pnpm prisma migrate deploy
 ```
+
+本番ではNeonの同じbranch/databaseに対し、runtimeのpooled接続とmigrationのdirect接続を分ける。
+接続変数、適用前後の確認、既存本番基盤の識別情報は[本番DB基盤・migration運用](production-database.md)を参照する。
