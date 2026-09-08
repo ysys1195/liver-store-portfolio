@@ -11,6 +11,9 @@ export default defineConfig({
   datasource: {
     // `prisma generate` does not connect to the database, so allow dependency
     // installation before a local .env file has been created.
-    url: process.env.DATABASE_URL ?? "postgresql://localhost/liver_store",
+    url:
+      process.env.DIRECT_URL ||
+      process.env.DATABASE_URL ||
+      "postgresql://localhost/liver_store",
   },
 });

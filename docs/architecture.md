@@ -151,7 +151,14 @@ Prisma
 Neon PostgreSQL
 ```
 
-DB接続文字列は環境変数で切り替える。
+DB接続文字列はサーバー専用環境変数で切り替える。実行時のPrismaPgは
+`DATABASE_URL`（Neon pooled接続）、Prisma CLIは`DIRECT_URL`（同じDBのdirect接続）を使用する。
+`DIRECT_URL`が空または未設定ならローカル互換のため`DATABASE_URL`へfallbackする。
+両方未設定のlocalhost fallbackはClient生成用で、本番migrationの接続先として使用しない。
+本番運用は[本番DB基盤](production-database.md)を参照する。
+
+既存の`postinstall`でPrisma Clientを生成する。migrationは明示的な運用操作とし、
+Next.js buildやPreview buildから本番DBへ自動適用しない。
 
 ## 5. Migration
 
