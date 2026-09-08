@@ -2,15 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { AddToCart } from "@/components/add-to-cart";
-import { ProductArtwork } from "@/components/product-artwork";
-import { ProductStatusBadge } from "@/components/product-status-badge";
 import {
-  categoryLabels,
-  formatPrice,
-  formatSaleDate,
-  statusLabels,
-} from "@/lib/product";
+  InventoryPanel,
+  InventoryStatusBadge,
+} from "@/components/inventory-panel";
+import { ProductArtwork } from "@/components/product-artwork";
+import { categoryLabels, formatPrice, formatSaleDate } from "@/lib/product";
 import { getProductBySlug } from "@/lib/server/storefront";
 
 export const dynamic = "force-dynamic";
@@ -35,13 +32,6 @@ export default async function ProductDetailPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const isAvailable =
-    product.status === "on_sale" || product.status === "low_stock";
-  const availabilityText =
-    product.status === "upcoming"
-      ? `${formatSaleDate(product.salesStartAt)} 販売開始`
-      : statusLabels[product.status];
-
   return (
     <main className="px-5 py-10 sm:px-8 sm:py-16">
       <div className="mx-auto max-w-7xl">
@@ -64,7 +54,10 @@ export default async function ProductDetailPage({
               <span className="text-xs font-bold tracking-[0.16em] text-violet-700 uppercase">
                 {categoryLabels[product.category]}
               </span>
-              <ProductStatusBadge status={product.status} />
+              <InventoryStatusBadge
+                productId={product.id}
+                initialStatus={product.status}
+              />
             </div>
             <h1 className="mt-5 text-3xl leading-tight font-black text-slate-950 sm:text-5xl">
               {product.name}
@@ -78,33 +71,17 @@ export default async function ProductDetailPage({
                 税込
               </span>
             </p>
-            <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-sm font-bold text-slate-950">販売状況</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                {availabilityText}
-              </p>
-              {isAvailable ? (
-                <AddToCart
-                  product={{
-                    id: product.id,
-                    slug: product.slug,
-                    name: product.name,
-                    price: product.price,
-                    maxStock: product.stock,
-                    category: product.category,
-                    imageUrl: product.imageUrl,
-                  }}
-                />
-              ) : (
-                <button
-                  type="button"
-                  disabled
-                  className="mt-5 w-full cursor-not-allowed rounded-xl bg-slate-200 px-5 py-3 font-bold text-slate-500"
-                >
-                  {availabilityText}
-                </button>
-              )}
-            </div>
+            <InventoryPanel
+              product={{
+                id: product.id,
+                slug: product.slug,
+                name: product.name,
+                price: product.price,
+                category: product.category,
+                imageUrl: product.imageUrl,
+                salesStartAt: product.salesStartAt,
+              }}
+            />
           </div>
           <section
             className="border-t border-slate-200 pt-8 lg:col-span-2"

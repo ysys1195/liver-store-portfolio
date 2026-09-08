@@ -30,6 +30,10 @@
 }
 ```
 
+- `status` はDBの `stock` と販売期間からサーバー側で導出する
+- 常に最新状態を問い合わせるため、HTTPレスポンスは `Cache-Control: private, no-store` とする
+- ブラウザ側の短時間キャッシュと再取得はTanStack Queryで制御する
+
 ### Error
 
 #### 404
@@ -40,6 +44,17 @@
   "message": "商品が見つかりません。"
 }
 ```
+
+#### 500
+
+```json
+{
+  "code": "INTERNAL_ERROR",
+  "message": "在庫情報を取得できませんでした。時間をおいて再度お試しください。"
+}
+```
+
+DBエラー、接続情報、stack traceなどの内部詳細はレスポンスへ含めない。
 
 ## 3. POST `/api/orders`
 
@@ -163,9 +178,12 @@ Basic認証配下のみで利用する。
 
 ### GET
 
-- TanStack Queryによる自動Retryを許可
-- Retry上限を設定する
+- 在庫Queryの `staleTime` は30秒とする
+- 通信エラーと5xxはTanStack Queryで最大2回まで自動Retryする
+- 404などの恒久的なクライアントエラーは自動Retryしない
+- staleなQueryはwindow focus時に再取得する
 - 最終失敗後は手動Retry UIを表示する
+- Query keyは `["product", productId, "inventory"]` とし、注文処理から商品単位でinvalidateできるようにする
 
 ### POST `/api/orders`
 
