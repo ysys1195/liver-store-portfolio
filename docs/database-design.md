@@ -56,6 +56,7 @@ idempotency_keys
 | description | String? | |
 | price | Int | NOT NULL, >= 0 |
 | stock | Int | NOT NULL, >= 0 |
+| purchase_limit | Int? | 1注文あたりの購入上限。NULLは追加上限なし |
 | category | Enum/String | NOT NULL |
 | image_url | String? | |
 | sales_start_at | DateTime | NOT NULL |
@@ -149,6 +150,14 @@ RETURNING stock;
 更新件数0件の場合は在庫不足として扱う。
 
 在庫減算、Order作成、Order Item作成、Idempotency記録は同一Transactionで行う。
+
+PrismaPgのinteractive transaction（Read Committed）内で、キーのhashに対する`pg_advisory_xact_lock`を取得してから既存注文を確認する。transaction単位のlockなのでpooled接続でsession lockを残さない。hash衝突は無関係なキーを直列化するだけで、キーの一致判定は既存PKを使う。
+
+商品ID順で`SELECT ... FOR UPDATE`し、価格・販売期間・購入上限を読み取る。在庫はJavaScriptで判定せず、Prisma `updateMany`の`stock >= quantity`条件と`decrement`で原子的に減算する。固定順のrow lockは複数商品の逆順リクエストによるdeadlockを避け、注文途中の価格変更も防ぐ。更新0件や後続商品の失敗では全体rollbackする。既存stock非負CHECKも維持する。
+
+同一キーの内容比較には既存OrderItemの商品ID・数量を正規化して使うため、request hash列は追加しない。注文金額・明細・キーはnested createで記録する。
+
+Issue #8のmigrationはnullableな`purchase_limit`列の追加のみ。既存商品はNULLとなり、既存データの削除・書き換えは行わない。
 
 ## 6. Index
 

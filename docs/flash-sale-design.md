@@ -189,3 +189,9 @@ SOLD OUT
 - 無料枠を消費する負荷試験を目的としない
 - 20件程度の並行リクエストで競合ロジックを確認する
 - Demo Reset APIはBasic認証下のみで利用する
+
+## Issue #8の実装・検証境界
+
+通常購入APIとCheckoutのpending・冪等再送・409後refetchを実装済み。キーのtransaction advisory lock、商品ID順のrow lock、条件付きstock decrement、注文とキーの同時commitで整合性を保つ。
+隔離したDocker PostgreSQLで在庫5に対する20並行注文、同一キー10並行再送、複数商品のrollbackを自動テストする。`ORDER_TEST_DATABASE_URL`はloopbackの`issue8_test`だけを許容する。
+Flash Sale画面・reset APIはIssue #9で実装し、本番Neonで競合負荷テスト・reset・seed再投入は行わない。

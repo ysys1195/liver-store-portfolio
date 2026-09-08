@@ -111,7 +111,7 @@ Server Componentでサーバー関数を直接呼び出す。
 カートの永続データはClient Componentのmount後にhydrateし、Server ComponentのHTMLとの
 不一致を避ける。保存値は改変・破損している可能性があるため、復元時に項目の型を検証し、
 数量を保存済みの在庫上限内へ補正する。価格・在庫の保存値は画面表示と事前の数量制限だけに
-用い、将来の注文処理ではDBから取得した値を正とする。ブラウザ設定などで
+用い、注文処理ではDBから取得した値を正とする。ブラウザ設定などで
 `localStorage` が利用できない場合は、永続化せずメモリ上のカートとして動作を継続する。
 
 カート画面ではhydrate後の商品IDごとに同じInventory Queryを購読する。最新在庫が0と
@@ -218,3 +218,12 @@ APIレスポンスではクライアントが処理可能なエラーコード�
 Inventory Route Handlerは商品なしを `PRODUCT_NOT_FOUND` / 404へ変換し、その他の
 例外は内部詳細を伏せた `INTERNAL_ERROR` / 500へ変換する。クライアントは404と
 一時的な取得失敗を異なる文言で表示し、どちらも最終失敗後に手動再取得を提供する。
+
+## 注文処理（Issue #8）
+
+`POST /api/orders` → Zod検証 → server-onlyの`createOrder` → PrismaPg transactionで処理する。詳細は[API設計](api-design.md)・[DB設計](database-design.md)を参照。
+
+CheckoutのClient ComponentはTanStack Queryのmutation（retryなし）を使い、pending中のdisabledと同期的な送信ガードを併用する。sessionStorageのキー・送信内容を保持して結果不明時の再送に使う。PrismaはClient Componentにimportしない。
+成功時と409時にはIssue #7のInventory Queryをinvalidateする。Checkout自身が対象商品を購読し、409後のrefetch結果を画面へ反映する。注文成功時は送信したID・数量と一致するカート項目だけを削除し、別画面で変更された項目は残す。
+
+Issue #11のNeon pooled runtime / direct migration構成をそのまま使用する。本番deploy・migration適用・seed・本番注文検証はこのIssueで実施しない。

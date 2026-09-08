@@ -100,3 +100,8 @@ Issue #11の残作業は、デモデータ準備、Production deploy、Basic認�
 - [Prisma: database connections](https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/databases-connections)
 - [Neon: security overview](https://neon.com/docs/security/security-overview)
 - [Vercel: environment variables](https://vercel.com/docs/environment-variables)
+
+## Issue #8の追加migration（本番未適用）
+
+`20260908142205_add_purchase_limit`は`products.purchase_limit`（nullable Int）を追加する。既存行はNULLで追加購入上限なしとなり、在庫・価格・注文データを変更しない。Dockerの隔離DBで適用・注文処理を検証する。
+本番適用はIssue #11の公開準備で上記手順に従い、対応アプリのdeployより先に実施する。Issue #8では本番migration・deploy・seed・Basic認証実機確認を行わない。
