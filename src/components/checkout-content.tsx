@@ -9,6 +9,7 @@ import {
 } from "@/lib/inventory";
 import {
   OrderError,
+  OrderTimeoutError,
   orderRequestSchema,
   orderResultSchema,
   postOrder,
@@ -61,7 +62,9 @@ export function CheckoutContent() {
   const mutation = useMutation({
     mutationFn: postOrder,
     retry: false,
-    onSuccess: async (result, request) => {
+    // Do not queue an offline order for automatic submission on reconnect.
+    networkMode: "always",
+    onSuccess: (result, request) => {
       const completed = { request, result };
       setAttempt(completed);
       try {
@@ -80,18 +83,18 @@ export function CheckoutContent() {
             ),
         ),
       }));
-      await Promise.all(
+      void Promise.all(
         productIds.map((id) => invalidateInventoryQuery(client, id)),
       );
     },
-    onError: async (error) => {
+    onError: (error) => {
       setMessage(
-        error instanceof OrderError
+        error instanceof OrderError || error instanceof OrderTimeoutError
           ? error.message
           : "注文結果を確認できませんでした。同じ内容・キーで再確認してください。",
       );
       if (error instanceof OrderError && error.status === 409) {
-        await Promise.all(
+        void Promise.all(
           productIds.map((id) => invalidateInventoryQuery(client, id)),
         );
       }
@@ -111,7 +114,16 @@ export function CheckoutContent() {
     },
   });
   async function submit() {
-    if (sending.current || mutation.isPending) return;
+    if (
+      sending.current ||
+      mutation.isPending ||
+      blocked ||
+      !ready ||
+      !hydrated ||
+      productIds.length === 0 ||
+      attempt?.result
+    )
+      return;
     sending.current = true;
     setMessage("");
     try {
@@ -168,15 +180,15 @@ export function CheckoutContent() {
             {attempt?.request.items.find((i) => i.productId === id)?.quantity ??
               items.find((i) => i.id === id)?.quantity}
             点<br />
-            {inventories[index]?.data ? (
-              `最新在庫 ${inventories[index].data.stock}点（${statusLabels[inventories[index].data.status]}）`
-            ) : inventories[index]?.isError ? (
+            {inventories[index]?.isError ? (
               <button
                 className="underline"
                 onClick={() => void inventories[index].refetch()}
               >
                 在庫取得失敗・再取得
               </button>
+            ) : inventories[index]?.data ? (
+              `最新在庫 ${inventories[index].data.stock}点（${statusLabels[inventories[index].data.status]}）`
             ) : (
               "在庫を確認中…"
             )}
@@ -193,7 +205,7 @@ export function CheckoutContent() {
         type="button"
         disabled={blocked || mutation.isPending || productIds.length === 0}
         onClick={() => void submit()}
-        className="w-full rounded-xl bg-slate-950 px-5 py-3 font-bold text-white disabled:opacity-50"
+        className="w-full cursor-pointer rounded-xl bg-slate-950 px-5 py-3 font-bold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-700 enabled:hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {mutation.isPending
           ? "注文を確認中…"

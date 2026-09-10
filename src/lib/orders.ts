@@ -44,8 +44,38 @@ export class OrderError extends Error {
     super(orderMessages[code]);
   }
 }
+export const ORDER_TIMEOUT_MS = 15_000;
+export class OrderTimeoutError extends Error {
+  constructor() {
+    super(
+      "通信がタイムアウトしました。注文が完了している可能性があります。オンラインに戻して、同じ注文キーで結果を再確認してください。",
+    );
+  }
+}
+
 export async function postOrder(request: OrderRequest): Promise<OrderResult> {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new OrderTimeoutError());
+      controller.abort();
+    }, ORDER_TIMEOUT_MS);
+  });
+  try {
+    // Bound both response headers and body; a late response cannot update the UI.
+    return await Promise.race([sendOrder(request, controller.signal), timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function sendOrder(
+  request: OrderRequest,
+  signal: AbortSignal,
+): Promise<OrderResult> {
   const response = await fetch("/api/orders", {
+    signal,
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(request),

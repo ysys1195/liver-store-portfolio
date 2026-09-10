@@ -227,3 +227,10 @@ CheckoutのClient ComponentはTanStack Queryのmutation（retryなし）を使�
 成功時と409時にはIssue #7のInventory Queryをinvalidateする。Checkout自身が対象商品を購読し、409後のrefetch結果を画面へ反映する。注文成功時は送信したID・数量と一致するカート項目だけを削除し、別画面で変更された項目は残す。
 
 Issue #11のNeon pooled runtime / direct migration構成をそのまま使用する。本番deploy・migration適用・seed・本番注文検証はこのIssueで実施しない。
+
+### Checkoutの通信待機・操作表示
+
+- 注文mutationは`networkMode: always`とし、オフラインで待機した注文をオンライン復帰時に自動送信しない。通信失敗時は同じキー・内容での手動再確認を案内する。
+- 注文リクエストはレスポンス本文の取得まで含めて15秒でタイムアウトし、fetchをabortする。これはサーバー側の注文取消を意味しないため、キーを保持し結果不明として扱う。
+- 在庫refetchは注文mutationの完了を待たせず、独立したQueryでloading・errorを表示する。再取得失敗時は保存済みの古い在庫を「最新」と表示せず、手動再取得を表示する。
+- 確定ボタンは有効時にホバーで色を変え、ポインターを表示する。無効時は薄く表示し、禁止カーソルにする。キーボード操作時にはフォーカス枠を表示する。
