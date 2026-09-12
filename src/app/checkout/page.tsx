@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CheckoutContent } from "@/components/checkout-content";
 
 export const metadata: Metadata = {
   title: "Demo Checkout | Liver Store Portfolio",
@@ -16,11 +17,7 @@ export default function CheckoutPage() {
         <h1 className="mt-4 text-3xl font-black text-slate-950 sm:text-5xl">
           Demo Checkout
         </h1>
-        <p className="mt-6 text-lg leading-8 text-slate-700">
-          購入体験はここまでです。
-          <br />
-          実際の注文・決済は行われません。
-        </p>
+        <CheckoutContent />
         <Link
           href="/"
           className="mt-8 inline-flex rounded-full bg-slate-950 px-7 py-3 font-bold text-white transition hover:bg-violet-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-700"

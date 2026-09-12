@@ -38,6 +38,8 @@ model Product {
   description   String?
   /// Enforced by the products_price_nonnegative database check constraint.
   price         Int
+  /// Optional per-order limit; NULL means no additional limit.
+  purchaseLimit Int?            @map("purchase_limit")
   /// Enforced by the products_stock_nonnegative database check constraint.
   stock         Int
   category      ProductCategory
