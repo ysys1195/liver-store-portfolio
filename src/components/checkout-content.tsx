@@ -1,8 +1,13 @@
 "use client";
 
-import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
+import {
+  onlineManager,
+  useMutation,
+  useQueries,
+  useQueryClient,
+} from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   inventoryQueryOptions,
   invalidateInventoryQuery,
@@ -20,10 +25,29 @@ import { formatPrice, statusLabels } from "@/lib/product";
 import { useCartStore } from "@/stores/cart-store";
 import { useCartHydration } from "@/stores/use-cart-hydration";
 
+const subscribeOnline = (onChange: () => void) => {
+  const unsubscribe = onlineManager.subscribe(onChange);
+  // Also observe reconnect after the page was initially loaded offline.
+  window.addEventListener("online", onChange);
+  window.addEventListener("offline", onChange);
+  return () => {
+    unsubscribe();
+    window.removeEventListener("online", onChange);
+    window.removeEventListener("offline", onChange);
+  };
+};
+const getOnlineSnapshot = () => onlineManager.isOnline() && navigator.onLine;
+const getServerOnlineSnapshot = () => true;
+
 const STORAGE_KEY = "liver-store-order-attempt";
 type Attempt = { request: OrderRequest; result?: OrderResult };
 export function CheckoutContent() {
   const hydrated = useCartHydration();
+  const online = useSyncExternalStore(
+    subscribeOnline,
+    getOnlineSnapshot,
+    getServerOnlineSnapshot,
+  );
   const items = useCartStore((s) => s.items);
   const [blocked, setBlocked] = useState(false);
   const [ready, setReady] = useState(false);
@@ -113,11 +137,13 @@ export function CheckoutContent() {
       }
     },
   });
+  const offlineRetry = !online && attempt !== null;
+  const submitDisabled =
+    blocked || mutation.isPending || productIds.length === 0 || offlineRetry;
   async function submit() {
     if (
       sending.current ||
-      mutation.isPending ||
-      blocked ||
+      submitDisabled ||
       !ready ||
       !hydrated ||
       productIds.length === 0 ||
@@ -201,18 +227,26 @@ export function CheckoutContent() {
         </p>
       )}
       {productIds.length === 0 && <p>カートは空です。</p>}
-      <button
-        type="button"
-        disabled={blocked || mutation.isPending || productIds.length === 0}
-        onClick={() => void submit()}
-        className="w-full cursor-pointer rounded-xl bg-slate-950 px-5 py-3 font-bold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-700 enabled:hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {mutation.isPending
-          ? "注文を確認中…"
-          : attempt
-            ? "同じ注文キーで結果を再確認"
-            : "デモ注文を確定する"}
-      </button>
+      {offlineRetry && (
+        <p id="offline-order-notice" role="status">
+          オフラインです。オンラインに戻ると、同じ注文キーで結果を再確認できます。
+        </p>
+      )}
+      <div className={submitDisabled ? "cursor-not-allowed" : undefined}>
+        <button
+          type="button"
+          aria-describedby={offlineRetry ? "offline-order-notice" : undefined}
+          disabled={submitDisabled}
+          onClick={() => void submit()}
+          className="w-full cursor-pointer rounded-xl bg-slate-950 px-5 py-3 font-bold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-700 enabled:hover:bg-violet-800 disabled:pointer-events-none disabled:opacity-50"
+        >
+          {mutation.isPending
+            ? "注文を確認中…"
+            : attempt
+              ? "同じ注文キーで結果を再確認"
+              : "デモ注文を確定する"}
+        </button>
+      </div>
       {!mutation.isPending && !attempt && (
         <Link className="inline-block underline" href="/cart">
           カートに戻って数量を変更

@@ -198,10 +198,16 @@ it("offline submission fails instead of waiting to auto-submit on reconnect", as
   await waitFor(() =>
     expect(
       screen.getByRole("button", { name: "同じ注文キーで結果を再確認" }),
-    ).toBeEnabled(),
+    ).toBeDisabled(),
   );
+  const retry = screen.getByRole("button", {
+    name: "同じ注文キーで結果を再確認",
+  });
+  expect(retry.parentElement).toHaveClass("cursor-not-allowed");
+  fireEvent.click(retry);
   expect(posts).toHaveLength(1);
   act(() => onlineManager.setOnline(true));
+  expect(retry).toBeEnabled();
   expect(posts).toHaveLength(1);
   fireEvent.click(
     screen.getByRole("button", { name: "同じ注文キーで結果を再確認" }),
