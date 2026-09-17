@@ -242,3 +242,20 @@ src/
 本サイトは非公式・非商用の採用選考用デモです。実際の決済機能は実装しません。
 
 画像・ロゴ・音声などのアセットは、自作・生成物・プレースホルダーなど、利用権を確認できるもののみを使用する方針です。
+
+## 注文APIのローカル実DB検証
+
+Issue #8の注文APIはデモ用注文と在庫更新のみを扱います。Checkoutから送信し、結果不明時は同じタブに保存したキーで再確認できます。実決済・配送はありません。
+
+実DBテストは通常の`pnpm test`ではskipされます。専用Docker DBを起動し、明示的に指定してください（以下は使い捨てローカル検証専用の認証値）。本番URLは指定しないでください。
+
+```bash
+docker run --name liver-issue8-test -e POSTGRES_USER=issue8 -e POSTGRES_PASSWORD=issue8_local -e POSTGRES_DB=issue8_test -p 127.0.0.1:55428:5432 -d postgres:17-alpine
+# pg_isreadyで起動完了を確認してから実行
+docker exec liver-issue8-test pg_isready -U issue8 -d issue8_test
+DATABASE_URL=postgresql://issue8:issue8_local@localhost:55428/issue8_test DIRECT_URL=postgresql://issue8:issue8_local@localhost:55428/issue8_test pnpm prisma migrate deploy
+ORDER_TEST_DATABASE_URL=postgresql://issue8:issue8_local@localhost:55428/issue8_test pnpm test
+```
+
+テストはloopbackかつDB名`issue8_test`のみ許容し、実行ごとの識別子を持つテストデータだけを作成・削除します。通常の`DATABASE_URL`はテスト先に使いません。
+同時注文・同一キー再送・rollback・DB価格・販売期間・購入上限・非負CHECKを検証します。本番Neonのdeploy・seed・注文確認はIssue #11の残作業です。
