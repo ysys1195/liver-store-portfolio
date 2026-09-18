@@ -2,13 +2,25 @@
 
 import { useQueries } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useDeferredValue, useEffect, ViewTransition } from "react";
 
 import { ProductArtwork } from "@/components/product-artwork";
 import { inventoryQueryOptions } from "@/lib/inventory";
 import { formatPrice } from "@/lib/product";
 import { getCartSubtotal, useCartStore } from "@/stores/cart-store";
 import { useCartHydration } from "@/stores/use-cart-hydration";
+
+function CartSubtotal({ subtotal }: { subtotal: number }) {
+  // External-store writes stay synchronous; only this display is deferred.
+  // useDeferredValue's background render activates React ViewTransition.
+  const displayedSubtotal = useDeferredValue(subtotal);
+
+  return (
+    <ViewTransition default="none" update="cart-subtotal">
+      <strong className="text-2xl">{formatPrice(displayedSubtotal)}</strong>
+    </ViewTransition>
+  );
+}
 
 export function CartContent() {
   const hasHydrated = useCartHydration();
@@ -200,7 +212,7 @@ export function CartContent() {
           <h2 className="text-xl font-black">ご注文内容</h2>
           <div className="mt-6 flex items-center justify-between border-t border-white/20 pt-5">
             <span className="font-bold">小計</span>
-            <strong className="text-2xl">{formatPrice(subtotal)}</strong>
+            <CartSubtotal subtotal={subtotal} />
           </div>
           <Link
             href="/checkout"

@@ -237,6 +237,23 @@ src/
 └── types/        # 共通の型定義
 ```
 
+## React 19.3 / ViewTransition 試験導入
+
+stableの`<ViewTransition>`を試すため、React / React DOMと両方の型定義を19.3.0へ固定しています。
+Next.jsはReact 19系をpeer dependencyで許容する16.3.4を維持し、`experimental.viewTransition`やルーター統合は使用しません。
+
+対象は既存Client Component `CartContent`内の小計だけです。Zustandの更新を`startTransition`で囲むだけでは外部storeの同期更新を非同期化できないため、
+小計の表示値を`useDeferredValue`で背景renderへ渡し、`<ViewTransition default="none" update="cart-subtotal">`を発火させます。
+数量変更・商品削除後の小計（在庫切れ自動削除後も、商品が残る場合）を120msで更新します。最後の商品削除時は従来どおり即座に空状態へ移ります。
+表示の小計は一時的に直前の値を保持しますが、数量・上限ボタン・永続化・Checkout・注文mutation・在庫Query・同期ガードは遅延させません。
+Client境界は拡大せず、`name`はReactの自動生成に任せます。初回hydrateは従来の完了判定を維持します。
+
+View Transition API非対応ブラウザでも通常の表示更新として動作するprogressive enhancementです。
+`prefers-reduced-motion: reduce`では小計のView Transition Classに対するアニメーションを無効にします。
+確認時は2商品以上をカートに入れて数量増減・削除を行い、小計更新と最後の商品削除後の空状態を確認してください。
+
+仕様根拠: [React 19.3リリース](https://react.dev/blog/2026/09/09/react-19-3)、[ViewTransitionリファレンス](https://react.dev/reference/react/ViewTransition)。
+
 ## Disclaimer / Assets
 
 本サイトは非公式・非商用の採用選考用デモです。実際の決済機能は実装しません。

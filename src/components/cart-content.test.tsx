@@ -1,9 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { Profiler } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   CART_SOLD_OUT_NOTICE_STORAGE_KEY,
+  CART_STORAGE_KEY,
   useCartStore,
 } from "@/stores/cart-store";
 
@@ -20,11 +22,13 @@ const cartItem = {
   quantity: 1,
 };
 
-function renderCart() {
+function renderCart(onRender = () => {}) {
   const queryClient = new QueryClient();
   return render(
     <QueryClientProvider client={queryClient}>
-      <CartContent />
+      <Profiler id="cart" onRender={onRender}>
+        <CartContent />
+      </Profiler>
     </QueryClientProvider>,
   );
 }
@@ -127,5 +131,49 @@ describe("CartContent", () => {
 
     expect(screen.queryByText(/対象の商品が在庫切れとなったため/)).toBeNull();
     expect(sessionStorage.getItem(CART_SOLD_OUT_NOTICE_STORAGE_KEY)).toBeNull();
+  });
+
+  it("API非対応でもstoreと保存値は同期更新し、小計だけ背景renderで追従する", () => {
+    expect(document.startViewTransition).toBeUndefined();
+    useCartStore.setState({
+      items: [cartItem, { ...cartItem, id: "voice-2", name: "Second Voice" }],
+    });
+    const commits: Array<{ quantity: number; subtotal: string | null }> = [];
+    const { container } = renderCart(() => {
+      commits.push({
+        quantity: useCartStore.getState().items[0]?.quantity ?? 0,
+        subtotal: document.querySelector("aside strong")?.textContent ?? null,
+      });
+    });
+    commits.length = 0;
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Demo Voiceの数量を1増やす" }),
+    );
+    expect(useCartStore.getState().items[0].quantity).toBe(2);
+    expect(
+      JSON.parse(localStorage.getItem(CART_STORAGE_KEY)!).state.items[0]
+        .quantity,
+    ).toBe(2);
+    expect(commits).toContainEqual({ quantity: 2, subtotal: "￥2,000" });
+    expect(container.querySelector("aside strong")).toHaveTextContent(
+      "￥3,000",
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Demo Voiceの数量を1減らす" }),
+    );
+    expect(container.querySelector("aside strong")).toHaveTextContent(
+      "￥2,000",
+    );
+    fireEvent.click(screen.getAllByRole("button", { name: "削除" })[0]);
+    expect(useCartStore.getState().items.map((item) => item.id)).toEqual([
+      "voice-2",
+    ]);
+    expect(container.querySelector("aside strong")).toHaveTextContent(
+      "￥1,000",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "削除" }));
+    expect(screen.getByText("カートは空です")).toBeInTheDocument();
   });
 });

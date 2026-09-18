@@ -21,3 +21,29 @@ body {
   background: #ddd6fe;
   color: #2e1065;
 }
+
+/* React owns the unique transition names; style only the subtotal class. */
+::view-transition {
+  pointer-events: none;
+}
+
+/* Keep the browser's root snapshot from cross-fading the rest of the page. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-group(.cart-subtotal),
+::view-transition-old(.cart-subtotal),
+::view-transition-new(.cart-subtotal) {
+  animation-duration: 120ms;
+  animation-timing-function: ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(.cart-subtotal),
+  ::view-transition-old(.cart-subtotal),
+  ::view-transition-new(.cart-subtotal) {
+    animation: none;
+  }
+}
