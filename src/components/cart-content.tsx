@@ -216,6 +216,7 @@ export function CartContent() {
           </div>
           <Link
             href="/checkout"
+            transitionTypes={["cart-checkout"]}
             className="mt-6 flex w-full justify-center rounded-xl bg-white px-5 py-3 font-bold text-slate-950 transition hover:bg-violet-100 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300"
           >
             Demo Checkoutへ

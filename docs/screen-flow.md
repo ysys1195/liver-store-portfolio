@@ -205,6 +205,8 @@ Empty State:
 - 在庫取得に失敗しただけでは商品を自動削除しない
 - 小計表示にReact 19.3の`ViewTransition`を試験導入する。数量変更・削除後の小計だけを背景renderで更新し、120msのアニメーションを付ける。最後の商品削除は即座に空状態へ移り、reduced motionではアニメーションを無効にする。API非対応時も操作可能。詳細と制約は[README](../README.md#react-193--viewtransition-試験導入)を参照。
 
+「Demo Checkoutへ」からの遷移のみ、カートとCheckoutの本文を180msでフェードする。reduced motion・API非対応時は通常表示とし、遷移自体では注文を送信しない。ヘッダー・フッターはアニメーション対象外。
+
 ## 8. Demo Checkout `/checkout`
 
 ```text

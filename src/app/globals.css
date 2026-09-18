@@ -40,7 +40,17 @@ body {
   animation-timing-function: ease-out;
 }
 
+::view-transition-group(.checkout-page),
+::view-transition-old(.checkout-page),
+::view-transition-new(.checkout-page) {
+  animation-duration: 180ms;
+  animation-timing-function: ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(.checkout-page),
+  ::view-transition-old(.checkout-page),
+  ::view-transition-new(.checkout-page),
   ::view-transition-group(.cart-subtotal),
   ::view-transition-old(.cart-subtotal),
   ::view-transition-new(.cart-subtotal) {
