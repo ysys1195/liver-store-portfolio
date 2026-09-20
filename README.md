@@ -237,6 +237,34 @@ src/
 └── types/        # 共通の型定義
 ```
 
+## React 19.3 / ViewTransition 試験導入
+
+stableの`<ViewTransition>`を試すため、React / React DOMと両方の型定義を19.3.0へ固定しています。
+Next.jsはReact 19系をpeer dependencyで許容する16.3.4を維持し、`experimental.viewTransition`は使用しません。ページ遷移には既存のNext.js `Link`の`transitionTypes`を使用します。
+
+カート内の適用対象は既存Client Component `CartContent`内の小計です。Zustandの更新を`startTransition`で囲むだけでは外部storeの同期更新を非同期化できないため、
+小計の表示値を`useDeferredValue`で背景renderへ渡し、`<ViewTransition default="none" update="cart-subtotal">`を発火させます。
+数量変更・商品削除後の小計（在庫切れ自動削除後も、商品が残る場合）をブラウザ標準のアニメーションで更新します。最後の商品削除時は従来どおり即座に空状態へ移ります。
+表示の小計は一時的に直前の値を保持しますが、数量・上限ボタン・永続化・Checkout・注文mutation・在庫Query・同期ガードは遅延させません。
+Client境界は拡大せず、小計とCheckout本文の`name`はReactの自動生成に任せます。初回hydrateは従来の完了判定を維持します。
+
+View Transition API非対応ブラウザでも通常の表示更新として動作するprogressive enhancementです。
+`prefers-reduced-motion: reduce`では小計のView Transition Classに対するアニメーションを無効にします。
+確認時は2商品以上をカートに入れて数量増減・削除を行い、小計更新と最後の商品削除後の空状態を確認してください。
+
+「Demo Checkoutへ」のリンクには`cart-checkout`というtransition typeを指定し、カートとCheckoutのServer Componentでページ本文を`ViewTransition`で囲みます。
+そのリンクによる遷移の入退場だけをブラウザ標準の動作でフェードし、ヘッダー・フッターや注文中の表示更新は対象外です。
+ブラウザの戻る操作、他のリンク、直接アクセスにはページフェードを付けません。reduced motionでは無効化します。
+小計とCheckout本文の速度・イージングは標準のままです。共通CSSでreduced motion対応、対象外のrootフェード抑止、ポインター操作維持を行います。
+追加ライブラリ・独自ルーター・タイマー・Client境界の追加はありません。
+
+商品一覧から詳細への遷移では、画像だけに`product-image-${product.id}`という共通の`name`を付け、`default="none" share="product-image"`で対応付けます。
+位置・サイズの変化と所要時間はブラウザ標準に任せ、商品画像だけCSSの`animation-timing-function: ease-in`でゆっくり始まり加速する動きを試しています。画像未設定時のプレースホルダーも同じ境界を使います。
+TOP・カートの画像、商品説明、在庫・購入ボタンは対象外です。一覧へ戻る際も、同じ商品の画像が両画面で対応付けられれば共有遷移します。
+遷移先の読み込み状況などにより前後の画像が同じ更新で揃わない場合は通常表示になります。reduced motionでは画像のアニメーションも無効化します。
+
+仕様根拠: [React 19.3リリース](https://react.dev/blog/2026/09/09/react-19-3)、[ViewTransitionリファレンス](https://react.dev/reference/react/ViewTransition)。
+
 ## Disclaimer / Assets
 
 本サイトは非公式・非商用の採用選考用デモです。実際の決済機能は実装しません。

@@ -21,3 +21,36 @@ body {
   background: #ddd6fe;
   color: #2e1065;
 }
+
+/* アニメーション用のオーバーレイが、背後のボタンやリンクへのクリックを遮らないようにする。 */
+::view-transition {
+  pointer-events: none;
+}
+
+/* ページ全体のフェードを抑え、商品画像・小計・Checkoutへの遷移で指定した本文だけをアニメーションさせる。 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* 商品画像はゆっくり動き始め、徐々に加速させる。所要時間はブラウザ標準のまま。 */
+::view-transition-group(.product-image),
+::view-transition-old(.product-image),
+::view-transition-new(.product-image) {
+  animation-timing-function: ease-in;
+}
+
+/* OSなどで「動きを減らす」が有効な場合は、商品画像・小計・ページ遷移のアニメーションを無効にする。 */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(.product-image),
+  ::view-transition-old(.product-image),
+  ::view-transition-new(.product-image),
+  ::view-transition-group(.checkout-page),
+  ::view-transition-old(.checkout-page),
+  ::view-transition-new(.checkout-page),
+  ::view-transition-group(.cart-subtotal),
+  ::view-transition-old(.cart-subtotal),
+  ::view-transition-new(.cart-subtotal) {
+    animation: none;
+  }
+}

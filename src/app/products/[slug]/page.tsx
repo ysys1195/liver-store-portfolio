@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ViewTransition } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -42,13 +43,19 @@ export default async function ProductDetailPage({
           ← 商品一覧へ
         </Link>
         <article className="mt-8 grid gap-10 lg:grid-cols-2 lg:gap-16">
-          <ProductArtwork
-            category={product.category}
-            name={product.name}
-            imageUrl={product.imageUrl}
-            sizes="(min-width: 1344px) 608px, (min-width: 1024px) calc((100vw - 8rem) / 2), (min-width: 640px) calc(100vw - 4rem), calc(100vw - 2.5rem)"
-            priority
-          />
+          <ViewTransition
+            name={`product-image-${product.id}`}
+            default="none"
+            share="product-image"
+          >
+            <ProductArtwork
+              category={product.category}
+              name={product.name}
+              imageUrl={product.imageUrl}
+              sizes="(min-width: 1344px) 608px, (min-width: 1024px) calc((100vw - 8rem) / 2), (min-width: 640px) calc(100vw - 4rem), calc(100vw - 2.5rem)"
+              priority
+            />
+          </ViewTransition>
           <div className="lg:py-4">
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-xs font-bold tracking-[0.16em] text-violet-700 uppercase">
