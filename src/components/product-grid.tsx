@@ -46,7 +46,7 @@ export function ProductGrid({ products }: { products: StorefrontProduct[] }) {
       {visibleProducts.length > 0 ? (
         <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visibleProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} animateImage />
           ))}
         </div>
       ) : (

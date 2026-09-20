@@ -246,7 +246,7 @@ Next.jsはReact 19系をpeer dependencyで許容する16.3.4を維持し、`expe
 小計の表示値を`useDeferredValue`で背景renderへ渡し、`<ViewTransition default="none" update="cart-subtotal">`を発火させます。
 数量変更・商品削除後の小計（在庫切れ自動削除後も、商品が残る場合）をブラウザ標準のアニメーションで更新します。最後の商品削除時は従来どおり即座に空状態へ移ります。
 表示の小計は一時的に直前の値を保持しますが、数量・上限ボタン・永続化・Checkout・注文mutation・在庫Query・同期ガードは遅延させません。
-Client境界は拡大せず、`name`はReactの自動生成に任せます。初回hydrateは従来の完了判定を維持します。
+Client境界は拡大せず、小計とCheckout本文の`name`はReactの自動生成に任せます。初回hydrateは従来の完了判定を維持します。
 
 View Transition API非対応ブラウザでも通常の表示更新として動作するprogressive enhancementです。
 `prefers-reduced-motion: reduce`では小計のView Transition Classに対するアニメーションを無効にします。
@@ -257,6 +257,11 @@ View Transition API非対応ブラウザでも通常の表示更新として動�
 ブラウザの戻る操作、他のリンク、直接アクセスにはページフェードを付けません。reduced motionでは無効化します。
 速度・イージングの独自CSS指定はありません。CSSはreduced motion対応、対象外のrootフェード抑止、ポインター操作維持に限定します。
 追加ライブラリ・独自ルーター・タイマー・Client境界の追加はありません。
+
+商品一覧から詳細への遷移では、画像だけに`product-image-${product.id}`という共通の`name`を付け、`default="none" share="product-image"`で対応付けます。
+位置・サイズの変化はブラウザ標準のアニメーションに任せ、独自の速度・イージングは指定しません。画像未設定時のプレースホルダーも同じ境界を使います。
+TOP・カートの画像、商品説明、在庫・購入ボタンは対象外です。一覧へ戻る際も、同じ商品の画像が両画面で対応付けられれば共有遷移します。
+遷移先の読み込み状況などにより前後の画像が同じ更新で揃わない場合は通常表示になります。reduced motionでは画像のアニメーションも無効化します。
 
 仕様根拠: [React 19.3リリース](https://react.dev/blog/2026/09/09/react-19-3)、[ViewTransitionリファレンス](https://react.dev/reference/react/ViewTransition)。
 

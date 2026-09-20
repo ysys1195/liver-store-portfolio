@@ -4,7 +4,7 @@ import postcss from "postcss";
 import { describe, expect, it } from "vitest";
 
 describe("cart and checkout motion", () => {
-  it.each(["cart-subtotal", "checkout-page"])(
+  it.each(["cart-subtotal", "checkout-page", "product-image"])(
     "%sは標準アニメーションを使い、reduced motionでは無効化する",
     (transitionClass) => {
       const css = postcss.parse(

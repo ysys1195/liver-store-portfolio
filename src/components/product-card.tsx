@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
 
 import {
   categoryLabels,
@@ -10,7 +11,13 @@ import {
 import { ProductArtwork } from "./product-artwork";
 import { ProductStatusBadge } from "./product-status-badge";
 
-export function ProductCard({ product }: { product: StorefrontProduct }) {
+export function ProductCard({
+  product,
+  animateImage = false,
+}: {
+  product: StorefrontProduct;
+  animateImage?: boolean;
+}) {
   return (
     <article className="group overflow-hidden border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-xl hover:shadow-slate-200/60">
       <Link
@@ -18,12 +25,18 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
         className="block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-700"
         aria-label={`${product.name}、${statusLabels[product.status]}の商品詳細を見る`}
       >
-        <ProductArtwork
-          category={product.category}
-          name={product.name}
-          imageUrl={product.imageUrl}
-          sizes="(min-width: 1280px) 411px, (min-width: 1024px) calc((100vw - 7rem) / 3), (min-width: 640px) calc((100vw - 5.5rem) / 2), calc(100vw - 2.5rem)"
-        />
+        <ViewTransition
+          name={animateImage ? `product-image-${product.id}` : undefined}
+          default="none"
+          share={animateImage ? "product-image" : "none"}
+        >
+          <ProductArtwork
+            category={product.category}
+            name={product.name}
+            imageUrl={product.imageUrl}
+            sizes="(min-width: 1280px) 411px, (min-width: 1024px) calc((100vw - 7rem) / 3), (min-width: 640px) calc((100vw - 5.5rem) / 2), calc(100vw - 2.5rem)"
+          />
+        </ViewTransition>
         <div className="p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-xs font-bold tracking-[0.14em] text-violet-700 uppercase">
