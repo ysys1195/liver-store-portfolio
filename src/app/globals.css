@@ -33,6 +33,13 @@ body {
   animation: none;
 }
 
+/* 商品画像はゆっくり動き始め、徐々に加速させる。所要時間はブラウザ標準のまま。 */
+::view-transition-group(.product-image),
+::view-transition-old(.product-image),
+::view-transition-new(.product-image) {
+  animation-timing-function: ease-in;
+}
+
 /* OSなどで「動きを減らす」が有効な場合は、商品画像・小計・ページ遷移のアニメーションを無効にする。 */
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(.product-image),

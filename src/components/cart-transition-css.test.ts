@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 describe("cart and checkout motion", () => {
   it.each(["cart-subtotal", "checkout-page", "product-image"])(
-    "%sは標準アニメーションを使い、reduced motionでは無効化する",
+    "%sのアニメーション設定とreduced motion対応を維持する",
     (transitionClass) => {
       const css = postcss.parse(
         readFileSync(new URL("../app/globals.css", import.meta.url), "utf8"),
@@ -29,7 +29,7 @@ describe("cart and checkout motion", () => {
           return;
         if (rule.parent?.type === "root") {
           rule.walkDecls(/^animation/, (declaration) => {
-            customAnimations.push(declaration.value);
+            customAnimations.push(`${declaration.prop}: ${declaration.value}`);
           });
         }
       });
@@ -42,7 +42,11 @@ describe("cart and checkout motion", () => {
           });
         });
       });
-      expect(customAnimations).toEqual([]);
+      expect(customAnimations).toEqual(
+        transitionClass === "product-image"
+          ? ["animation-timing-function: ease-in"]
+          : [],
+      );
       expect(staticRootSelectors).toEqual(
         expect.arrayContaining([
           "::view-transition-old(root)",
