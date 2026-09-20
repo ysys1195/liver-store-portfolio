@@ -22,17 +22,18 @@ body {
   color: #2e1065;
 }
 
-/* Keep native transitions interactive; leave their timing to the browser. */
+/* アニメーション用のオーバーレイが、背後のボタンやリンクへのクリックを遮らないようにする。 */
 ::view-transition {
   pointer-events: none;
 }
 
-/* Keep the browser's root snapshot from cross-fading the rest of the page. */
+/* ページ全体のフェードを抑え、小計とCheckoutへの遷移で指定した本文だけをアニメーションさせる。 */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
 }
 
+/* OSなどで「動きを減らす」が有効な場合は、小計とページ遷移のアニメーションを無効にする。 */
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(.checkout-page),
   ::view-transition-old(.checkout-page),
