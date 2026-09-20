@@ -4,12 +4,9 @@ import postcss from "postcss";
 import { describe, expect, it } from "vitest";
 
 describe("cart and checkout motion", () => {
-  it.each([
-    ["cart-subtotal", "120ms"],
-    ["checkout-page", "180ms"],
-  ])(
-    "%sは短いアニメーションを使い、reduced motionでは無効化する",
-    (transitionClass, duration) => {
+  it.each(["cart-subtotal", "checkout-page"])(
+    "%sは標準アニメーションを使い、reduced motionでは無効化する",
+    (transitionClass) => {
       const css = postcss.parse(
         readFileSync(new URL("../app/globals.css", import.meta.url), "utf8"),
       );
@@ -18,7 +15,7 @@ describe("cart and checkout motion", () => {
         `::view-transition-old(.${transitionClass})`,
         `::view-transition-new(.${transitionClass})`,
       ];
-      const durations: string[] = [];
+      const customAnimations: string[] = [];
       const staticRootSelectors: string[] = [];
       const reducedSelectors: string[] = [];
       css.walkRules((rule) => {
@@ -31,8 +28,8 @@ describe("cart and checkout motion", () => {
         if (!rule.selectors.some((selector) => selectors.includes(selector)))
           return;
         if (rule.parent?.type === "root") {
-          rule.walkDecls("animation-duration", (declaration) => {
-            durations.push(declaration.value);
+          rule.walkDecls(/^animation/, (declaration) => {
+            customAnimations.push(declaration.value);
           });
         }
       });
@@ -45,7 +42,7 @@ describe("cart and checkout motion", () => {
           });
         });
       });
-      expect(durations).toEqual([duration]);
+      expect(customAnimations).toEqual([]);
       expect(staticRootSelectors).toEqual(
         expect.arrayContaining([
           "::view-transition-old(root)",

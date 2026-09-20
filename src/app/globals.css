@@ -22,7 +22,7 @@ body {
   color: #2e1065;
 }
 
-/* React owns the unique transition names; style only the subtotal class. */
+/* Keep native transitions interactive; leave their timing to the browser. */
 ::view-transition {
   pointer-events: none;
 }
@@ -31,20 +31,6 @@ body {
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
-}
-
-::view-transition-group(.cart-subtotal),
-::view-transition-old(.cart-subtotal),
-::view-transition-new(.cart-subtotal) {
-  animation-duration: 120ms;
-  animation-timing-function: ease-out;
-}
-
-::view-transition-group(.checkout-page),
-::view-transition-old(.checkout-page),
-::view-transition-new(.checkout-page) {
-  animation-duration: 180ms;
-  animation-timing-function: ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
