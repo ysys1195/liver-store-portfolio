@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function Footer() {
   return (
     <footer className="bg-slate-950 px-6 py-10 text-sm leading-6 text-slate-300">
@@ -5,6 +7,12 @@ export function Footer() {
         <p className="font-bold tracking-[0.16em] text-white uppercase">
           Unofficial Portfolio Demo
         </p>
+        <Link
+          href="/demo/flash-sale"
+          className="mt-3 inline-block underline underline-offset-4 hover:text-white"
+        >
+          Flash Sale Simulation
+        </Link>
         <p className="mt-3">
           本サイトは非公式・非商用の採用選考用ポートフォリオデモです。
           実際の販売・注文・決済は行いません。

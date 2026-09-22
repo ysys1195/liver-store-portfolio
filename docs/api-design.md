@@ -166,26 +166,32 @@ DBエラー、接続情報、stack traceなどの内部詳細はレスポンス�
 
 ## 4. POST `/api/demo/reset`
 
-Flash Sale Simulation用の商品状態を初期化する。
+対象を `yui-birthday-2026` のみに固定する。リセットはstockを5、販売開始をepoch、販売終了をNULLにし、販売期間に依存せずローカルデモを再現できるようにする。価格・購入上限・他商品・既存注文・Idempotency Keyは変更/削除しない。
 
-Basic認証配下のみで利用する。
+既存ProxyのBasic認証方針に加えて、`ENABLE_FLASH_SALE_DEMO=true`、非production、非Vercel、loopback接続かつ専用DB名（`liver_store_demo` または `issue9_test`）のすべてを必須とする。URL queryは`schema`以外を拒否し、接続先上書きを防ぐ。公開本番Neonでは利用不可。
 
-### Request
+POSTは`Content-Type: application/json`とloopbackの`Host`（ポート含む）と一致する`Origin`を必須とし、別originやOriginなしは403。Next.jsの内部URL正規化に対応するためhostnameはHostと照合し、protocolはリクエストURLと照合する。bodyは以下だけを許可し、任意の商品ID・在庫数などの追加フィールドは400。
 
 ```json
-{
-  "productId": "yui-birthday-2026"
-}
+{ "productId": "yui-birthday-2026" }
 ```
 
-### Response
+商品row lockを取得したtransactionで在庫を更新し、既存注文の累計を基準値として返す。注文履歴を削除せず、実行前後の差分で集計する。
 
 ```json
 {
   "productId": "yui-birthday-2026",
-  "stock": 5
+  "stock": 5,
+  "orderCount": 12,
+  "orderedQuantity": 15
 }
 ```
+
+### GET `/api/demo/state`
+
+同じ環境ガードとBasic認証方針の下で、上記と同じ形式の最新状態を返す。対象商品を含むユニーク注文数と対象商品の購入数量を、在庫と同じRepeatable Read snapshotで集計する。リセットは行わない。
+
+両APIは`Cache-Control: private, no-store`。無効環境は403 `DEMO_DISABLED`、対象商品なしは404 `PRODUCT_NOT_FOUND`、内部例外は詳細を伏せた500 `INTERNAL_ERROR`。GETのみ通信/5xxを最大2回Retryする。POSTの自動Retryは行わない。
 
 ## 5. Retry Policy
 
