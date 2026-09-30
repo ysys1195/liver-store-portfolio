@@ -26,9 +26,11 @@ export function FlashSale() {
   const [ready, setReady] = useState(false);
   const [storageError, setStorageError] = useState(false);
   const locked = useRef(false);
+  const mounted = useRef(false);
   // Restore browser-only session storage after SSR, matching Checkout hydration.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
+    mounted.current = true;
     try {
       const saved = sessionStorage.getItem(DEMO_STORAGE_KEY);
       if (saved) setRun(runSchema.parse(JSON.parse(saved)));
@@ -38,6 +40,9 @@ export function FlashSale() {
       setStorageError(true);
     }
     setReady(true);
+    return () => {
+      mounted.current = false;
+    };
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
   const state = useQuery({
@@ -62,9 +67,15 @@ export function FlashSale() {
     retry: false,
     networkMode: "always",
     mutationFn: async (action: "reset" | "run") => {
+      if (!mounted.current) return;
       if (action === "reset") {
         setBaseline(null);
+        // Reset may commit even if its response is lost. Discard the previous
+        // verification before sending, including cached snapshots on remount.
+        await client.resetQueries({ queryKey: ["demo", "state"] });
+        if (!mounted.current) return;
         const next = await fetchDemoState(true);
+        if (!mounted.current) return;
         try {
           sessionStorage.removeItem(DEMO_STORAGE_KEY);
         } catch {
@@ -77,12 +88,15 @@ export function FlashSale() {
         const next = run ?? makeRun(baseline!);
         save(next); // Persist every key BEFORE any request can leave the browser.
         const result = await executeRun(next);
-        save(result);
+        // An abandoned page must not overwrite a newer page's retry keys.
+        // Its saved pending keys remain available for manual confirmation.
+        if (mounted.current) save(result);
       }
-      void invalidateInventoryQuery(client, DEMO_PRODUCT_ID);
     },
     onSettled: () => {
       locked.current = false;
+      // A failed response or an unmount does not imply a server-side rollback.
+      void invalidateInventoryQuery(client, DEMO_PRODUCT_ID);
     },
   });
   const { refetch } = state;

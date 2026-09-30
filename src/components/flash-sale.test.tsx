@@ -55,10 +55,9 @@ beforeEach(() => {
   });
 });
 afterEach(() => vi.restoreAllMocks());
-function mount() {
-  const client = new QueryClient({
-    defaultOptions: { queries: { gcTime: 0 } },
-  });
+function mount(
+  client = new QueryClient({ defaultOptions: { queries: { gcTime: 0 } } }),
+) {
   return render(
     <QueryClientProvider client={client}>
       <FlashSale />
@@ -156,4 +155,115 @@ it("disables both actions during a pending reset and permits retry after failure
   await act(async () => reject(new Error("offline")));
   await screen.findByRole("alert");
   await reset();
+});
+
+function orderResponse(index: number) {
+  if (index >= 10) return response({ code: "OUT_OF_STOCK" }, 409);
+  return response({
+    orderId: `o${Math.floor(index / 2)}`,
+    status: "completed",
+    totalAmount: 3000,
+    replayed: index % 2 === 1,
+  });
+}
+it("late response from an unmounted run must not overwrite the new run's retry keys", async () => {
+  const releases: Array<() => void> = [];
+  let posts = 0;
+  vi.spyOn(globalThis, "fetch").mockImplementation(async (url) => {
+    if (url === "/api/demo/reset") return response(baseline);
+    if (url === "/api/demo/state") return response(final);
+    const i = posts++;
+    if (i < 20)
+      return new Promise<Response>((resolve) =>
+        releases.push(() => resolve(orderResponse(i))),
+      );
+    if (i < 40) return orderResponse(i - 20);
+    throw new Error("New run response lost");
+  });
+  const first = mount();
+  await reset();
+  fireEvent.click(screen.getByRole("button", { name: "20件を並行送信" }));
+  await waitFor(() => expect(posts).toBe(20));
+  first.unmount();
+  const second = mount();
+  fireEvent.click(
+    await screen.findByRole("button", {
+      name: "結果不明の注文を同じキーで再確認",
+    }),
+  );
+  await screen.findByText("整合性検証：一致");
+  await reset();
+  fireEvent.click(screen.getByRole("button", { name: "20件を並行送信" }));
+  await waitFor(() => expect(posts).toBe(60));
+  await waitFor(() =>
+    expect(
+      screen.getByRole("button", { name: "結果不明の注文を同じキーで再確認" }),
+    ).toBeEnabled(),
+  );
+  const newKeys = JSON.parse(sessionStorage.getItem(DEMO_STORAGE_KEY)!).keys;
+  await act(async () => releases.forEach((release) => release()));
+  expect(JSON.parse(sessionStorage.getItem(DEMO_STORAGE_KEY)!).keys).toEqual(
+    newKeys,
+  );
+  second.unmount();
+  mount();
+  await screen.findByRole("button", {
+    name: "結果不明の注文を同じキーで再確認",
+  });
+  expect(
+    screen.getByRole("button", { name: "在庫を5にリセット" }),
+  ).toBeDisabled();
+});
+
+it("a late reset response cannot remove a newer page's saved retry keys", async () => {
+  let finishReset!: (response: Response) => void;
+  vi.mocked(fetch).mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        finishReset = resolve;
+      }),
+  );
+  const first = mount();
+  fireEvent.click(screen.getByRole("button", { name: "在庫を5にリセット" }));
+  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+  first.unmount();
+  mount();
+  await reset();
+  failOrders = true;
+  fireEvent.click(screen.getByRole("button", { name: "20件を並行送信" }));
+  await waitFor(() =>
+    expect(
+      screen.getByRole("button", { name: "結果不明の注文を同じキーで再確認" }),
+    ).toBeEnabled(),
+  );
+  const saved = sessionStorage.getItem(DEMO_STORAGE_KEY);
+  expect(saved).not.toBeNull();
+  await act(async () => finishReset(response(baseline)));
+  expect(sessionStorage.getItem(DEMO_STORAGE_KEY)).toBe(saved);
+});
+it("a lost reset response clears verification across remount and permits fresh GET verification", async () => {
+  const client = new QueryClient();
+  const first = mount(client);
+  await reset();
+  fireEvent.click(screen.getByRole("button", { name: "20件を並行送信" }));
+  await screen.findByText("整合性検証：一致");
+  // The DB has reset to 5, but the POST response never reaches the browser.
+  vi.mocked(fetch).mockImplementationOnce(async () => {
+    throw new Error("Reset committed, response lost");
+  });
+  fireEvent.click(screen.getByRole("button", { name: "在庫を5にリセット" }));
+  await screen.findByRole("alert");
+  expect(screen.getByText("整合性検証：未確認")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "20件を並行送信" })).toBeDisabled();
+  first.unmount();
+  mount(client); // Next.js navigation retains the root QueryClient.
+  await screen.findByText("整合性検証：未確認");
+  vi.mocked(fetch).mockResolvedValueOnce(response({ ...final, stock: 5 }));
+  fireEvent.click(
+    screen.getByRole("button", { name: "最終在庫・注文数を再取得" }),
+  );
+  await screen.findByText("整合性検証：不一致");
+  expect(requests).toHaveLength(20);
+  await reset();
+  expect(screen.getByRole("button", { name: "20件を並行送信" })).toBeEnabled();
 });
