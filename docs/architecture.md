@@ -240,3 +240,7 @@ Issue #11のNeon pooled runtime / direct migration構成をそのまま使用す
 Server Componentのページがrequest時の環境ガードを確認し、有効なローカル専用DB環境のみClient Componentを表示する。Clientは既存`postOrder`/`POST /api/orders`を20並行で再利用する。
 `POST /api/demo/reset`は対象商品row lock下で在庫・販売期間のみ初期化し、基準注文数・数量を返す。`GET /api/demo/state`はRepeatable Readで在庫と集計を一貫したsnapshotとして返す。Prisma schema変更や履歴削除は行わない。
 サーバー状態の再取得はTanStack Query、実行キーと応答はローカルのsessionStorageで保持する。注文後は共通Inventory Queryもinvalidateする。環境・Originガードと運用制約は[Flash Sale設計](flash-sale-design.md)を参照。
+
+## テスト環境（Issue #10）
+
+Vitest / React Testing Library でロジック、Client Component、APIを検証する。DB統合テストとPlaywrightは `pnpm test:e2e` で起動する一時 PostgreSQL の専用DBだけを使用する。PlaywrightのwebServerはBasic認証を有効にしたloopbackのNext.js開発サーバーで、初回DisclaimerからDemo Checkoutまで確認する。セットアップと実行方法はREADMEを参照。
