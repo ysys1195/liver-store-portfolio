@@ -234,3 +234,9 @@ Issue #11のNeon pooled runtime / direct migration構成をそのまま使用す
 - 注文リクエストはレスポンス本文の取得まで含めて15秒でタイムアウトし、fetchをabortする。これはサーバー側の注文取消を意味しないため、キーを保持し結果不明として扱う。
 - 在庫refetchは注文mutationの完了を待たせず、独立したQueryでloading・errorを表示する。再取得失敗時は保存済みの古い在庫を「最新」と表示せず、手動再取得を表示する。
 - 確定ボタンは有効時にホバーで色を変え、ポインターを表示する。無効時は薄く表示し、禁止カーソルにする。キーボード操作時にはフォーカス枠を表示する。
+
+## Flash Sale Simulation（Issue #9）
+
+Server Componentのページがrequest時の環境ガードを確認し、有効なローカル専用DB環境のみClient Componentを表示する。Clientは既存`postOrder`/`POST /api/orders`を20並行で再利用する。
+`POST /api/demo/reset`は対象商品row lock下で在庫・販売期間のみ初期化し、基準注文数・数量を返す。`GET /api/demo/state`はRepeatable Readで在庫と集計を一貫したsnapshotとして返す。Prisma schema変更や履歴削除は行わない。
+サーバー状態の再取得はTanStack Query、実行キーと応答はローカルのsessionStorageで保持する。注文後は共通Inventory Queryもinvalidateする。環境・Originガードと運用制約は[Flash Sale設計](flash-sale-design.md)を参照。
