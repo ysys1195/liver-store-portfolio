@@ -4,6 +4,19 @@ test("Basic認証・初回Disclaimerからデモ注文完了まで", async ({
   page,
   playwright,
 }) => {
+  const anonymous = await playwright.request.newContext({
+    baseURL: test.info().project.use.baseURL,
+    // Playwright otherwise inherits the project's valid Basic credentials.
+    httpCredentials: [],
+  });
+  try {
+    const denied = await anonymous.get("/");
+    expect(denied.status()).toBe(401);
+    expect(denied.headers()["www-authenticate"]).toContain("Basic");
+  } finally {
+    await anonymous.dispose();
+  }
+
   const unauthorized = await playwright.request.newContext({
     baseURL: test.info().project.use.baseURL,
     httpCredentials: { username: "invalid", password: "invalid" },
