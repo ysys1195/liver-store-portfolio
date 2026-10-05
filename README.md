@@ -238,7 +238,7 @@ pnpm test
 pnpm test:e2e
 ```
 
-`test:e2e` には Docker が必要です。スクリプトは `compose.e2e.yaml` の一時 PostgreSQL を loopback のランダムポートで起動し、`issue8_test`、`issue9_test`、`issue10_e2e` に migration を適用します。Seed は `issue10_e2e` のみに投入します。テスト終了時に一時コンテナとDBを削除します。既存の `.env` や Neon の接続先は使わず、Playwright設定も専用DB以外を拒否します。DBとBasic認証の値は実行時に生成し、リポジトリへ保存しません。本番・Vercel Preview では実行できません。同じスクリプトを CI の `.github/workflows/test.yml` でも使います。Playwright の report、trace、screenshot は Git 管理外です。
+`test:e2e` には Docker が必要です。スクリプトは `compose.e2e.yaml` の一時 PostgreSQL を loopback のランダムポートで起動し、`issue8_test`、`issue9_test`、`issue10_e2e` に migration を適用します。Seed は `issue10_e2e` のみに投入します。テスト終了時（Ctrl+C / SIGTERM による中断時を含む）に一時コンテナとDBを削除します。既存の `.env` や Neon の接続先は使わず、Playwright設定も専用DB以外を拒否します。DBとBasic認証の値は実行時に生成し、リポジトリへ保存しません。本番・Vercel Preview では実行できません。同じスクリプトを CI の `.github/workflows/test.yml` でも使います。Playwright の report、trace、screenshot は Git 管理外です。
 
 ### 基本ディレクトリ
 
