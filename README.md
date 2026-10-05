@@ -218,6 +218,7 @@ docker compose up -d
 | `pnpm build`              | 本番用ビルドを作成           |
 | `pnpm start`              | ビルド済みアプリを起動       |
 | `pnpm test`               | Vitestを実行                 |
+| `pnpm test:e2e`           | 隔離DBで統合テストとPlaywrightを実行 |
 | `pnpm lint`               | ESLintを実行                 |
 | `pnpm typecheck`          | TypeScriptの型チェックを実行 |
 | `pnpm format`             | Prettierでコードを整形       |
@@ -225,6 +226,19 @@ docker compose up -d
 | `pnpm prisma generate`    | Prisma Clientを生成          |
 | `pnpm prisma migrate dev` | 開発DBへmigrationを適用      |
 | `pnpm prisma db seed`     | デモデータを投入             |
+
+### Issue #10 テスト
+
+`pnpm test` は Unit / Component / API テストを実行します。注文・Flash Sale のDB統合テストは専用DB接続時のみ有効です。`pnpm test:e2e` はこれらのDB統合テストと Chromium の主要フローを実行します。
+
+```bash
+pnpm install --frozen-lockfile
+pnpm exec playwright install chromium
+pnpm test
+pnpm test:e2e
+```
+
+`test:e2e` には Docker が必要です。スクリプトは `compose.e2e.yaml` の一時 PostgreSQL を loopback のランダムポートで起動し、`issue8_test`、`issue9_test`、`issue10_e2e` に migration を適用します。Seed は `issue10_e2e` のみに投入します。テスト終了時（Ctrl+C / SIGTERM による中断時を含む）に一時コンテナとDBを削除します。既存の `.env` や Neon の接続先は使わず、Playwright設定も専用DB以外を拒否します。DBとBasic認証の値は実行時に生成し、リポジトリへ保存しません。本番・Vercel Preview では実行できません。同じスクリプトを CI の `.github/workflows/test.yml` でも使います。Playwright の report、trace、screenshot は Git 管理外です。
 
 ### 基本ディレクトリ
 

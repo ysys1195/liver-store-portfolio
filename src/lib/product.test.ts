@@ -67,6 +67,20 @@ describe("getProductStatus", () => {
       ),
     ).toBe("upcoming");
   });
+
+  it("販売開始・終了の瞬間と低在庫の境界を判定する", () => {
+    const product = {
+      stock: 6,
+      salesStartAt: new Date("2026-09-04T00:00:00.000Z"),
+      salesEndAt: new Date("2026-09-05T00:00:00.000Z"),
+    };
+    expect(getProductStatus(product, product.salesStartAt)).toBe("on_sale");
+    expect(getProductStatus({ ...product, stock: 5 }, now)).toBe("low_stock");
+    expect(getProductStatus(product, product.salesEndAt)).toBe("on_sale");
+    expect(
+      getProductStatus(product, new Date("2026-09-05T00:00:00.001Z")),
+    ).toBe("ended");
+  });
 });
 
 describe("formatPrice", () => {
